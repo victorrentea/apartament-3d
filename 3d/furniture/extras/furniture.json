@@ -1,0 +1,191 @@
+{
+  "_note": "PRIVATE USE ONLY: IKEA 3D models from the ikea.com/ro product pages (rotera viewer, https://web-api.ikea.com/ro/ro/rotera/static/models/<item>-mini.glb). Never publish them or commit them to a public repo. Extras = hall 11 (inside x 7.312..8.873, y 3.64..9.25; the apartment's ENTRANCE DOOR is in its east wall, y 5.096..5.940, hinged at the south end, opens inwards) + the laundry niche east of 'Oficiu' 12 (x 9.48..10.607, y 13.064..13.728; only 0.549 m wide east of x 10.116). x, y = footprint centre in plan metres (x right, y up); rot_deg = world rotation.y = plan angle CCW; the model's front (+z in the GLB) faces plan angle rot_deg - 90. dims_mm = from the product page (w x d x h). \"wall\": true = wall-mounted: x, y is the point on the wall face (the model's back sits on it) and \"lift\" = height of its lowest point above the floor. \"tilt_deg\" rotates the model about its own x axis first (the IKEA mirror is modelled lying flat). A piece with \"parent\" sits in that piece's frame: \"local\" = [x across, height above the parent's bottom, z towards its front] in metres, rot_deg relative. \"kind\" = drawn from code, no IKEA model: mirror_glass (reflective pane over the mirror's glass), stack_kit, dryer, coat.",
+  "room": "extras",
+  "pieces": [
+    {
+      "id": "x-mirror",
+      "product": "NISSEDAL Oglindă, alb, 65x150 cm",
+      "item_no": "103.203.17",
+      "url": "https://www.ikea.com/ro/ro/p/nissedal-oglinda-alb-10320317/",
+      "price_lei": 279,
+      "model": "10320317-mini.glb",
+      "x": 7.3121,
+      "y": 5.5,
+      "rot_deg": 90,
+      "wall": true,
+      "tilt_deg": 90,
+      "lift": 0.38,
+      "placement": "hall 11, west wall, straight across from the entrance door (door y 5.10..5.94, mirror y 5.175..5.825): the last thing you see before going out. Under the two wall lights (y 5.168 and 5.931, 1.95 m up); frame 0.38..1.88 m above the floor, just south of the socket at y 5.867 / 0.30 m",
+      "dims_mm": {
+        "w": 650,
+        "d": 53,
+        "h": 1500
+      },
+      "dims_note": "d = model depth (the page gives 65x150 only)"
+    },
+    {
+      "id": "x-mirror-glass",
+      "product": "reflective pane over the NISSEDAL glass (drawn from code)",
+      "kind": "mirror_glass",
+      "parent": "x-mirror",
+      "local": [
+        0,
+        0.019,
+        0.0245
+      ],
+      "rot_deg": 0,
+      "dims_mm": {
+        "w": 612,
+        "h": 1462
+      },
+      "placement": "1.5 mm in front of the model's glass (glass 23 mm, frame front 53 mm off the wall, frame ~19 mm wide: probed by raycast)"
+    },
+    {
+      "id": "x-washer",
+      "product": "UDDARP Maşină de spălat, IKEA 500, 8 kg",
+      "item_no": "705.254.67",
+      "url": "https://www.ikea.com/ro/ro/p/uddarp-masina-de-spalat-ikea-500-70525467/",
+      "price_lei": 2999,
+      "model": "70525467-mini.glb",
+      "x": 9.777,
+      "y": 13.396,
+      "rot_deg": 270,
+      "placement": "laundry niche east of Oficiu 12, as deep as a 60 cm machine goes: back 2 cm off the step at x 10.116 (east of it the niche is only 0.549 m wide), 3 cm clear of the side walls (y 13.064 / 13.728); door faces west, towards Oficiu and the bedroom-2 door",
+      "dims_mm": {
+        "w": 595,
+        "d": 628,
+        "h": 855
+      }
+    },
+    {
+      "id": "x-stack-kit",
+      "product": "TYKARP Set stivuire mașină spălat/uscător (desenat din cod: modelul IKEA arată piesele desfăcute)",
+      "item_no": "606.014.66",
+      "url": "https://www.ikea.com/ro/ro/p/tykarp-set-stivuire-masina-spalat-uscator-60601466/",
+      "kind": "stack_kit",
+      "parent": "x-washer",
+      "local": [
+        0,
+        0.844,
+        -0.02
+      ],
+      "rot_deg": 0,
+      "dims_mm": {
+        "w": 596,
+        "d": 590,
+        "h": 60
+      }
+    },
+    {
+      "id": "x-dryer",
+      "product": "Uscător de rufe 60 cm (desenat din cod: IKEA România nu vinde uscătoare)",
+      "kind": "dryer",
+      "parent": "x-washer",
+      "local": [
+        0,
+        0.904,
+        -0.015
+      ],
+      "rot_deg": 0,
+      "dims_mm": {
+        "w": 596,
+        "d": 600,
+        "h": 845
+      },
+      "placement": "on the stacking kit, cabinet front flush with the washer's (washer front 0.285 m ahead of its centre, probed by raycast); top at 1.75 m, under the wall light at 1.95 m"
+    },
+    {
+      "id": "x-shoe-cabinet",
+      "product": "MACKAPÄR Dulap pantofi/depozitare, alb, 80x35x102 cm",
+      "item_no": "503.347.51",
+      "url": "https://www.ikea.com/ro/ro/p/mackapaer-dulap-pantofi-depozitare-alb-50334751/",
+      "price_lei": 399,
+      "model": "50334751-mini.glb",
+      "x": 8.695,
+      "y": 4.6,
+      "rot_deg": 270,
+      "placement": "hall 11, east wall, right beside the entrance door on its hinge side (door jamb y 5.087; cabinet y 4.20..5.00, just north of the socket at y 4.123); 35 cm deep, leaves 1.21 m of passage; the fully open door leaf (along y 5.13) clears it",
+      "dims_mm": {
+        "w": 800,
+        "d": 350,
+        "h": 1020
+      }
+    },
+    {
+      "id": "x-coat-rack",
+      "product": "TJUSIG Cuier perete, negru, 79 cm",
+      "item_no": "201.526.34",
+      "url": "https://www.ikea.com/ro/ro/p/tjusig-cuier-perete-negru-20152634/",
+      "price_lei": 99.9,
+      "model": "20152634-mini.glb",
+      "x": 8.8728,
+      "y": 4.6,
+      "rot_deg": 270,
+      "wall": true,
+      "lift": 1.72,
+      "placement": "above the shoe cabinet, hooks at 1.72 m, hat shelf top at 2.04 m",
+      "dims_mm": {
+        "w": 790,
+        "d": 250,
+        "h": 320
+      }
+    },
+    {
+      "id": "x-coat-1",
+      "product": "jacket (drawn from code)",
+      "kind": "coat",
+      "color": "#2f4a6b",
+      "lean_deg": 2,
+      "parent": "x-coat-rack",
+      "local": [
+        -0.2,
+        -0.625,
+        0.215
+      ],
+      "rot_deg": 12,
+      "dims_mm": {
+        "w": 340,
+        "d": 90,
+        "h": 620
+      }
+    },
+    {
+      "id": "x-coat-2",
+      "product": "jacket (drawn from code)",
+      "kind": "coat",
+      "color": "#c9973a",
+      "lean_deg": -2,
+      "parent": "x-coat-rack",
+      "local": [
+        0.02,
+        -0.605,
+        0.225
+      ],
+      "rot_deg": -9,
+      "dims_mm": {
+        "w": 330,
+        "d": 90,
+        "h": 600
+      }
+    },
+    {
+      "id": "x-coat-3",
+      "product": "jacket (drawn from code)",
+      "kind": "coat",
+      "color": "#6f7377",
+      "lean_deg": 1,
+      "parent": "x-coat-rack",
+      "local": [
+        0.24,
+        -0.645,
+        0.215
+      ],
+      "rot_deg": 10,
+      "dims_mm": {
+        "w": 340,
+        "d": 90,
+        "h": 640
+      }
+    }
+  ]
+}

@@ -1,0 +1,120 @@
+{
+  "_note": "Room 3 extras: gaming setup on the MICKE desk (drawn from code in block.js; the shop links are the real products they stand for), a painting above the bed and hanging plants on the east wall. PRIVATE USE ONLY: the IKEA 3D models (https://web-api.ikea.com/ro/ro/rotera/static/models/<item>-mini.glb) must never be published. x, y = plan metres (x right, y up); rot_deg = world rotation.y = plan angle CCW, the piece's front (+z) faces plan angle rot_deg - 90. on_desk = height of the piece's bottom above the top of b3-desk (measured in the page, 0.75 m fallback). orient wall: h = centre height, the flat-lying IKEA picture is stood up. hook_h = height of the hook the hanging pot's cords end at. Room 3 inside: x 3.584..7.110, y 3.642..6.619; east wall face x 7.107; switch on it at y 4.822, h 1.05.",
+  "room": 3,
+  "pieces": [
+    {
+      "id": "b3x-mousepad",
+      "product": "Mousepad gaming XXL cu iluminare RGB LUVLU, 800x300x4 mm, negru",
+      "url": "https://www.emag.ro/mousepad-profesional-xxl-gaming-cu-iluminare-rgb-luvlutm-11-moduri-de-lumini-led-suprafata-moale-si-rezistenta-la-stropire-baza-anti-alunecare-cauciucata-margini-cusute-cablu-usb-inclus-800x300x4mm-ne/pd/DD12Q5YBM/",
+      "price_lei": 62.93,
+      "kind": "mousepad",
+      "x": 3.935, "y": 5.60, "on_desk": 0, "rot_deg": 90,
+      "placement": "front half of the desk top, under the keyboard and the mouse"
+    },
+    {
+      "id": "b3x-monitor",
+      "product": "Monitor gaming curbat Samsung Odyssey G5 34\", UWQHD 3440x1440, 165 Hz, 1000R (LC34G55TWWRXEN)",
+      "url": "https://www.emag.ro/monitor-gaming-curbat-led-va-samsung-odyssey-34-wqhd-165hz-1ms-hdr10-1000r-free-sync-premium-display-port-hdmi-lc34g55twwrxen/pd/DSV19TMBM/",
+      "price_lei": 1263.99,
+      "kind": "monitor",
+      "x": 3.744, "y": 5.60, "on_desk": 0, "rot_deg": 90,
+      "placement": "rear of the desk, screen facing east (the chair); 1000R curve, V-shaped stand",
+      "dims_mm": { "w": 808, "d": 272, "h": 470 }
+    },
+    {
+      "id": "b3x-pc",
+      "product": "Sistem Desktop PC Gaming A+ Powered by MSI, Intel Core i5-14400F, 16GB DDR4, 1TB SSD, GeForce RTX 5060 8GB",
+      "url": "https://www.emag.ro/sistem-desktop-pc-gaming-a-powered-by-msi-cu-procesor-intelr-coretm-i5-14400f-pana-la-4-7ghz-16gb-ddr4-1tb-ssd-msi-geforce-rtxtm-5060-8g-shadow-2x-oc-8gb-gddr7-no-os-black-emag-lynx04intel-14400f5060-/pd/D6PX6Y7BM/",
+      "price_lei": 5799.99,
+      "kind": "tower",
+      "x": 3.807, "y": 6.115, "on_desk": 0, "rot_deg": 90,
+      "placement": "north end of the desk top, front to the room, tempered-glass side towards the monitor/user",
+      "dims_mm": { "w": 210, "d": 400, "h": 440 }
+    },
+    {
+      "id": "b3x-keyboard",
+      "product": "Tastatură mecanică gaming Redragon Draconic TKL PRO K530 RGB, brown switches",
+      "url": "https://www.emag.ro/tastatura-mecanica-gaming-redragon-draconic-tkl-pro-k530-rgb-brown-switches-5-0-bluetooth-2-4-ghz-wired-usb-type-c-k530rgb-pro-br/pd/DT00XZMBM/",
+      "price_lei": 159.99,
+      "kind": "keyboard",
+      "x": 3.965, "y": 5.55, "on_desk": 0.004, "rot_deg": 90,
+      "placement": "on the mousepad, in front of the monitor"
+    },
+    {
+      "id": "b3x-mouse",
+      "product": "Mouse gaming Logitech G502 Hero 25.600 DPI, negru",
+      "url": "https://www.emag.ro/mouse-gaming-logitech-g502-hero-25-600-dpi-negru-910-005470/pd/D077JCBBM/",
+      "price_lei": 199.99,
+      "kind": "mouse",
+      "x": 3.975, "y": 5.87, "on_desk": 0.004, "rot_deg": 90,
+      "placement": "on the mousepad, right of the keyboard"
+    },
+    {
+      "id": "b3x-headset",
+      "product": "Căști gaming HyperX Cloud Alpha, negru/roșu",
+      "url": "https://www.emag.ro/casti-gaming-hyperx-cloud-alpha-drivere-50mm-dual-chamber-microfon-detasabil-cu-noise-cancelling-certificat-discord-teamspeak-spuma-cu-memorie-multiplatforma-negru-rosu-4p5l1am-abb/pd/DTNT1FMBM/",
+      "price_lei": 249.99,
+      "kind": "headset",
+      "x": 3.79, "y": 6.115, "on_desk": 0.44, "rot_deg": 90,
+      "placement": "standing on top of the PC case"
+    },
+    {
+      "id": "b3x-painting",
+      "product": "BLODFLÄDER Tablou, Nazaré, 50x70 cm",
+      "item_no": "806.019.17",
+      "url": "https://www.ikea.com/ro/ro/p/blodflaeder-tablou-nazare-80601917/",
+      "price_lei": 149.9,
+      "model": "80601917-mini.glb",
+      "orient": "wall",
+      "x": 7.089, "y": 5.875, "h": 1.46, "rot_deg": 270,
+      "placement": "east wall, centred over the SLATTUM headboard (bed centre y 5.875), bottom edge 25 cm above it, 3 mm off the wall, facing west",
+      "dims_mm": { "w": 520, "d": 30, "h": 720 }
+    },
+    {
+      "id": "b3x-bracket-n", "product": "consolă de perete pentru ghiveci suspendat (desenată din cod)", "kind": "bracket",
+      "x": 7.107, "y": 6.36, "h": 2.60, "rot_deg": 270
+    },
+    {
+      "id": "b3x-pot-n",
+      "product": "CHILISTRÅN Ghiveci suspendat, interior/exterior alb, 12 cm",
+      "item_no": "704.922.64",
+      "url": "https://www.ikea.com/ro/ro/p/chilistran-ghiveci-suspendat-interior-exterior-alb-70492264/",
+      "price_lei": 69.9,
+      "model": "70492264-mini.glb",
+      "x": 6.917, "y": 6.36, "hook_h": 2.585, "upside_down": true, "rot_deg": 270,
+      "dims_mm": { "w": 171, "d": 146, "h": 975 }
+    },
+    {
+      "id": "b3x-pothos-n",
+      "product": "FEJKA Plantă artificială, interior/exterior Golden pothos/suspendată, 12 cm",
+      "item_no": "406.152.71",
+      "url": "https://www.ikea.com/ro/ro/p/fejka-planta-artificiala-interior-exterior-golden-pothos-suspendata-40615271/",
+      "price_lei": 49.9,
+      "model": "40615271-mini.glb",
+      "x": 6.917, "y": 6.36, "hook_h": 2.585, "sink": 0.085, "rot_deg": 270
+    },
+    {
+      "id": "b3x-bracket-s", "product": "consolă de perete pentru ghiveci suspendat (desenată din cod)", "kind": "bracket",
+      "x": 7.107, "y": 5.39, "h": 2.60, "rot_deg": 270
+    },
+    {
+      "id": "b3x-pot-s",
+      "product": "CHILISTRÅN Ghiveci suspendat, interior/exterior alb, 12 cm",
+      "item_no": "704.922.64",
+      "url": "https://www.ikea.com/ro/ro/p/chilistran-ghiveci-suspendat-interior-exterior-alb-70492264/",
+      "price_lei": 69.9,
+      "model": "70492264-mini.glb",
+      "x": 6.917, "y": 5.39, "hook_h": 2.585, "upside_down": true, "rot_deg": 270,
+      "dims_mm": { "w": 171, "d": 146, "h": 975 }
+    },
+    {
+      "id": "b3x-pothos-s",
+      "product": "FEJKA Plantă artificială, interior/exterior Golden pothos/suspendată, 12 cm",
+      "item_no": "406.152.71",
+      "url": "https://www.ikea.com/ro/ro/p/fejka-planta-artificiala-interior-exterior-golden-pothos-suspendata-40615271/",
+      "price_lei": 49.9,
+      "model": "40615271-mini.glb",
+      "x": 6.917, "y": 5.39, "hook_h": 2.585, "sink": 0.085, "rot_deg": 110
+    }
+  ]
+}

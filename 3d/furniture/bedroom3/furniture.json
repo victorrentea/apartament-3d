@@ -1,0 +1,135 @@
+{
+  "_note": "PRIVATE USE ONLY: IKEA 3D models from the ikea.com/ro product pages (rotera viewer, https://web-api.ikea.com/ro/ro/rotera/static/models/<item>-mini.glb). Never publish them or commit them to a public repo. Room 3 (second bedroom, 3.52 x 2.98 m inside: x 3.584..7.110, y 3.642..6.619). x, y = footprint centre in plan metres (x right, y up); rot_deg = world rotation.y = plan angle CCW; the model's front (+z in the GLB) faces plan angle rot_deg - 90. dims_mm = from the product page (w x d x h). A piece with \"parent\" sits in that piece's local frame: \"local\" = [x, bottom height, z] in metres (glTF axes: x across, z = front direction = foot of the bed), rot_deg relative to the parent. \"kind\": \"bedding\" is drawn parametrically (duvet + 2 pillows sized from dims_mm, colours from \"colors\").",
+  "room": 3,
+  "pieces": [
+    {
+      "id": "b3-bed",
+      "product": "SLATTUM Cadru pat tapițat, Vissle gri închis, 140x200 cm",
+      "item_no": "005.712.45",
+      "url": "https://www.ikea.com/ro/ro/p/slattum-cadru-pat-tapitat-vissle-gri-inchis-00571245/",
+      "price_lei": 499,
+      "model": "00571245-mini.glb",
+      "x": 6.064,
+      "y": 5.875,
+      "rot_deg": 270,
+      "placement": "headboard against the east wall, long side against the north wall; foot towards the desk",
+      "dims_mm": {
+        "w": 1440,
+        "d": 2060,
+        "h": 850
+      }
+    },
+    {
+      "id": "b3-mattress",
+      "product": "ÅKREHAMN Saltea din spumă, fermă, alb, 140x200 cm",
+      "item_no": "104.816.40",
+      "url": "https://www.ikea.com/ro/ro/p/akrehamn-saltea-din-spuma-ferma-alb-10481640/",
+      "price_lei": 1199,
+      "model": "10481640-mini.glb",
+      "parent": "b3-bed",
+      "local": [
+        0,
+        0.325,
+        0.006
+      ],
+      "rot_deg": 0,
+      "placement": "on the SLATTUM slats (slat top 0.325 m, inner frame z -0.992..1.004 probed by raycast)",
+      "dims_mm": {
+        "w": 1400,
+        "d": 2000,
+        "h": 200
+      }
+    },
+    {
+      "id": "b3-bedding",
+      "product": "duvet 200x200 + 2 pillows (parametric, not an IKEA model), terracotta duvet",
+      "kind": "bedding",
+      "parent": "b3-mattress",
+      "local": [
+        0,
+        0.198,
+        0
+      ],
+      "rot_deg": 0,
+      "dims_mm": {
+        "w": 1400,
+        "d": 2000,
+        "h": 200
+      },
+      "colors": {
+        "duvet": "#b9714f",
+        "fold": "#efe6d8",
+        "pillow": "#f6f1e8"
+      }
+    },
+    {
+      "id": "b3-wardrobe",
+      "product": "VILHATTEN Dulap cu 2 uși + 2 sertare, aspect stejar, 98x57x190 cm",
+      "item_no": "705.306.09",
+      "url": "https://www.ikea.com/ro/ro/p/vilhatten-dulap-cu-2-usi-2-sertare-aspect-stejar-70530609/",
+      "price_lei": 899,
+      "model": "70530609-mini.glb",
+      "x": 5.78,
+      "y": 3.956,
+      "rot_deg": 180,
+      "placement": "back against the south wall, between the socket at x 5.01 and the swing of the hall door; doors face the bed",
+      "dims_mm": {
+        "w": 980,
+        "d": 570,
+        "h": 1900
+      }
+    },
+    {
+      "id": "b3-desk",
+      "product": "MICKE Birou, alb, 105x50 cm",
+      "item_no": "802.130.74",
+      "url": "https://www.ikea.com/ro/ro/p/micke-birou-alb-80213074/",
+      "price_lei": 399,
+      "model": "80213074-mini.glb",
+      "x": 3.844,
+      "y": 5.705,
+      "rot_deg": 90,
+      "placement": "against the west wall, just north of the small side window (light from the left); clear of the balcony door",
+      "dims_mm": {
+        "w": 1050,
+        "d": 500,
+        "h": 750
+      }
+    },
+    {
+      "id": "b3-chair",
+      "product": "FLINTAN Scaun rotativ, bej",
+      "item_no": "704.922.02",
+      "url": "https://www.ikea.com/ro/ro/p/flintan-scaun-rotativ-bej-70492202/",
+      "price_lei": 299,
+      "model": "70492202-mini.glb",
+      "x": 4.4,
+      "y": 5.705,
+      "rot_deg": 270,
+      "placement": "at the desk, facing west",
+      "dims_mm": {
+        "w": 710,
+        "d": 710,
+        "h": 1010
+      },
+      "dims_note": "page: 71x71 cm, height 101-114 cm (seat 45-58 cm, adjustable); the model is at the lowest setting"
+    },
+    {
+      "id": "b3-rug",
+      "product": "LANDBANA Covor, țesătură plată, albastru închis, 133x195 cm",
+      "item_no": "305.756.09",
+      "url": "https://www.ikea.com/ro/ro/p/landbana-covor-tesatura-plata-albastru-inchis-30575609/",
+      "price_lei": 499,
+      "model": "30575609-mini.glb",
+      "x": 5.345,
+      "y": 4.965,
+      "rot_deg": 0,
+      "placement": "long side E-W on the free floor between the wardrobe front (y 4.26) and the bed; its north half runs under the bed and the chair; clear of the balcony-door swing (x < 4.37) and the hall-door swing (x > 6.32)",
+      "dims_mm": {
+        "w": 1950,
+        "d": 1330,
+        "h": 15
+      }
+    }
+  ]
+}

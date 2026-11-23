@@ -1,0 +1,243 @@
+{
+  "_note": "Living room (room 1). Private use only: IKEA 3D models from the product pages (rotera viewer, https://web-api.ikea.com/ro/ro/rotera/static/models/<id>-mini.glb). Do not publish or commit to a public repo. x, y = footprint centre in plan metres (DXF: x right, y up); rot_deg = world rotation.y = plan angle CCW; the model's front (+z in the GLB) faces plan angle rot_deg - 90. dims_mm = from the product page (w x d x h). Room 1 inside: x 5.347..10.607, y 9.451..12.890.",
+  "pieces": [
+    {
+      "id": "sofa",
+      "product": "KIVIK Canapea 3 locuri, Tibbleby bej/gri",
+      "item_no": "494.405.97",
+      "url": "https://www.ikea.com/ro/ro/p/kivik-canapea-3-locuri-tibbleby-bej-gri-s49440597/",
+      "price_lei": 1699,
+      "model": "49440597-mini.glb",
+      "room": 1,
+      "x": 7.25,
+      "y": 12.4,
+      "rot_deg": 0,
+      "placement": "back against the north wall, between the west wall and the opening to the lobby (0.30 m clear of it); faces south, towards the TV; front legs on the rug",
+      "dims_mm": {
+        "w": 2280,
+        "d": 950,
+        "h": 830
+      }
+    },
+    {
+      "id": "coffee-table",
+      "product": "ÄMMARYD Măsuță cafea, alb, 98x59 cm",
+      "item_no": "006.091.25",
+      "url": "https://www.ikea.com/ro/ro/p/aemmaryd-masuta-cafea-alb-00609125/",
+      "price_lei": 249,
+      "model": "00609125-mini.glb",
+      "room": 1,
+      "x": 7.25,
+      "y": 11.3,
+      "rot_deg": 0,
+      "placement": "in front of the sofa, 33 cm from its seat, fully on the rug, under the pendant lamp",
+      "dims_mm": {
+        "w": 980,
+        "d": 590,
+        "h": 450
+      }
+    },
+    {
+      "id": "tv-bench",
+      "product": "BRIMNES Comodă TV, alb, 180x41x53 cm",
+      "item_no": "504.098.74",
+      "url": "https://www.ikea.com/ro/ro/p/brimnes-comoda-tv-alb-50409874/",
+      "price_lei": 499,
+      "model": "50409874-mini.glb",
+      "room": 1,
+      "x": 6.72,
+      "y": 9.69,
+      "rot_deg": 180,
+      "placement": "against the south wall, between the west wall and the hall door (ends 4 cm before the door opening); faces the sofa",
+      "dims_mm": {
+        "w": 1800,
+        "d": 410,
+        "h": 530
+      }
+    },
+    {
+      "id": "armchair",
+      "product": "STRANDMON Fotoliu, Tibbleby galben",
+      "item_no": "006.131.65",
+      "url": "https://www.ikea.com/ro/ro/p/strandmon-fotoliu-tibbleby-galben-00613165/",
+      "price_lei": 799,
+      "model": "00613165-mini.glb",
+      "room": 1,
+      "x": 9.3,
+      "y": 11.4,
+      "rot_deg": -60,
+      "placement": "east of the rug, turned towards the coffee table and the TV; front legs on the rug",
+      "dims_mm": {
+        "w": 820,
+        "d": 960,
+        "h": 1010
+      }
+    },
+    {
+      "id": "rug",
+      "product": "TVERSTED Covor, fir scurt, bej, 200x300 cm",
+      "item_no": "405.608.05",
+      "url": "https://www.ikea.com/ro/ro/p/tversted-covor-fir-scurt-bej-40560805/",
+      "price_lei": 1399,
+      "model": "40560805-mini.glb",
+      "room": 1,
+      "x": 7.55,
+      "y": 11.45,
+      "rot_deg": 90,
+      "placement": "centred on the seating group and under the pendant lamp (7.408, 11.256), 3 m along x: x 6.05..9.05, y 10.45..12.45; 5 cm clear of the balcony door swing, 22 cm clear of the hall door swing; coffee table fully on it, sofa and armchair front legs on it",
+      "dims_mm": {
+        "w": 2000,
+        "d": 3000,
+        "h": 16
+      }
+    },
+    {
+      "id": "tv",
+      "product": "Televizor 55\" pe perete (desenat din cod: IKEA nu vinde televizoare, iar magazinele românești nu oferă modele 3D)",
+      "kind": "tv",
+      "room": 1,
+      "x": 6.72,
+      "y": 9.476,
+      "h": 1.15,
+      "rot_deg": 180,
+      "placement": "wall-mounted on the south wall, centred above the BRIMNES TV bench, screen facing the sofa; back 5 mm off the wall face (y 9.451)",
+      "dims_mm": {
+        "w": 1230,
+        "d": 40,
+        "h": 710
+      }
+    },
+    {
+      "id": "picture-east",
+      "product": "BLODFLÄDER Tablou, Sena la Giverny, 118x78 cm",
+      "item_no": "206.019.15",
+      "url": "https://www.ikea.com/ro/ro/p/blodflaeder-tablou-sena-la-giverny-20601915/",
+      "price_lei": 299,
+      "model": "20601915-mini.glb",
+      "orient": "wall",
+      "room": 1,
+      "x": 10.589,
+      "y": 11.4,
+      "h": 1.5,
+      "rot_deg": 270,
+      "placement": "east wall, centred behind the STRANDMON armchair, 3 mm off the wall face (x 10.607), facing west",
+      "dims_mm": {
+        "w": 1180,
+        "d": 30,
+        "h": 780
+      }
+    },
+    {
+      "id": "picture-north",
+      "product": "PJÄTTERYD Tablou, The Starry Night, June 1889, 118x78 cm",
+      "item_no": "505.789.04",
+      "url": "https://www.ikea.com/ro/ro/p/pjaetteryd-tablou-the-starry-night-june-1889-50578904/",
+      "price_lei": 119.9,
+      "model": "50578904-mini.glb",
+      "orient": "wall",
+      "room": 1,
+      "x": 7.25,
+      "y": 12.876,
+      "h": 1.45,
+      "rot_deg": 0,
+      "placement": "north wall, centred above the KIVIK sofa (bottom edge ~21 cm above the backrest), 3 mm off the wall face (y 12.890), facing south",
+      "dims_mm": {
+        "w": 1180,
+        "d": 21,
+        "h": 780
+      }
+    },
+    {
+      "id": "bookcase",
+      "product": "BILLY Bibliotecă, alb, 80x28x202 cm",
+      "item_no": "002.638.50",
+      "url": "https://www.ikea.com/ro/ro/p/billy-biblioteca-alb-00263850/",
+      "price_lei": 279,
+      "model": "00263850-mini.glb",
+      "room": 1,
+      "x": 9.15,
+      "y": 9.6,
+      "rot_deg": 180,
+      "placement": "south wall, east of the hall door: x 8.75..9.55, 10 cm east of the light switch (x 8.651) and 25 cm past the door opening (x 8.50); faces north",
+      "dims_mm": {
+        "w": 800,
+        "d": 280,
+        "h": 2020
+      },
+      "books": {
+        "_note": "drawn from code: shelf tops (m) probed by raycast in the BILLY model; clear = free height above the shelf",
+        "inner_w": 0.76,
+        "depth": 0.26,
+        "z": 0.01,
+        "seed": 23,
+        "rows": [
+          {
+            "y": 0.097,
+            "clear": 0.27,
+            "fill": 0.9
+          },
+          {
+            "y": 0.382,
+            "clear": 0.336,
+            "fill": 0.95
+          },
+          {
+            "y": 0.734,
+            "clear": 0.308,
+            "fill": 0.7
+          },
+          {
+            "y": 1.058,
+            "clear": 0.33,
+            "fill": 0.88
+          },
+          {
+            "y": 1.404,
+            "clear": 0.306,
+            "fill": 0.6
+          },
+          {
+            "y": 1.726,
+            "clear": 0.274,
+            "fill": 0.8
+          }
+        ]
+      }
+    },
+    {
+      "id": "plant",
+      "product": "DRACAENA MARGINATA Plantă naturală, Copacul dragon / 2 tulpini, ghiveci 19 cm, 120 cm",
+      "item_no": "404.084.55",
+      "url": "https://www.ikea.com/ro/ro/p/dracaena-marginata-planta-naturala-copacul-dragon-2-tulpini-40408455/",
+      "price_lei": 99.9,
+      "model": "40408455-mini.glb",
+      "room": 1,
+      "x": 5.67,
+      "y": 9.73,
+      "rot_deg": 0,
+      "placement": "south-west corner between the west wall and the BRIMNES TV bench (pot centre ~5.655, 9.775); foliage stays south of y 10.0, so the balcony door leaf opens freely",
+      "dims_mm": {
+        "w": 620,
+        "d": 592,
+        "h": 1200
+      }
+    },
+    {
+      "id": "bike",
+      "product": "Bicicletă magnetică FitTronic 601B, volantă 9 kg, 97x52x128 cm (eMAG; desenată din cod)",
+      "url": "https://www.emag.ro/bicicleta-magnetica-fittronicr-volanta-9-kg-greutate-suportata-120-kg-8-trepte-de-rezistenta-la-pedalare-display-mare-afisare-functii-utile-601b/pd/DVC0J3BBM/",
+      "price_lei": 899.01,
+      "kind": "bike",
+      "room": 1,
+      "x": 5.7,
+      "y": 12.3,
+      "rot_deg": 0,
+      "placement": "north-west corner, between the west wall (window to balcony 13) and the west end of the sofa; faces south, towards the TV",
+      "dims_mm": {
+        "w": 520,
+        "d": 970,
+        "h": 1280
+      }
+    }
+  ]
+}

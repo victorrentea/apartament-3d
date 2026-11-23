@@ -1,0 +1,175 @@
+{
+  "_note": "PRIVATE USE ONLY: IKEA 3D models from the ikea.com/ro product pages (rotera viewer, https://web-api.ikea.com/ro/ro/rotera/static/models/<item>-mini.glb). Never publish them or commit them to a public repo. Room 4 (third bedroom, child's/teen's room, 3.53 x 2.95 m inside: x 3.584..7.110, y 0.491..3.439; balcony door on the west wall y 2.11..3.00 hinged at its north end, small window y 1.73..2.23; hall door on the east wall y 2.57..3.44 hinged at the north end, swings in). x, y = footprint centre in plan metres (x right, y up); rot_deg = world rotation.y = plan angle CCW; the model's front (+z in the GLB) faces plan angle rot_deg - 90. dims_mm = from the product page (w x d x h). \"lift\" = metres above the floor. A piece with \"parent\" sits in that piece's local frame: \"local\" = [x, bottom height, z] in metres (glTF axes: x across, z = front direction = foot of the bed), rot_deg relative to the parent. \"kind\": \"bedding\" is drawn parametrically (duvet + pillow(s) sized from dims_mm, colours from \"colors\").",
+  "room": 4,
+  "pieces": [
+    {
+      "id": "b4-rug",
+      "product": "BUSENKEL Covor, model arlechin/multicolor, 130x160 cm",
+      "item_no": "605.204.27",
+      "url": "https://www.ikea.com/ro/ro/p/busenkel-covor-model-arlechin-multicolor-60520427/",
+      "price_lei": 299,
+      "model": "60520427-mini.glb",
+      "x": 5.35,
+      "y": 2.17,
+      "rot_deg": 0,
+      "lift": 0.003,
+      "placement": "middle of the free floor between the bed and the wardrobe/KALLAX, clear of both door swings",
+      "dims_mm": {
+        "w": 1600,
+        "d": 1300,
+        "h": 6
+      }
+    },
+    {
+      "id": "b4-bed",
+      "product": "NEIDEN Cadru pat, pin, 90x200 cm",
+      "item_no": "403.952.45",
+      "url": "https://www.ikea.com/ro/ro/p/neiden-cadru-pat-pin-40395245/",
+      "price_lei": 219,
+      "model": "40395245-mini.glb",
+      "x": 6.07,
+      "y": 0.985,
+      "rot_deg": 270,
+      "placement": "south-east corner: headboard against the east wall, long side against the south wall",
+      "dims_mm": {
+        "w": 970,
+        "d": 2060,
+        "h": 650
+      }
+    },
+    {
+      "id": "b4-slats",
+      "product": "LURÖY Somieră, 90x200 cm",
+      "item_no": "901.602.11",
+      "url": "https://www.ikea.com/ro/ro/p/luroey-somiera-90160211/",
+      "price_lei": 100,
+      "model": "90160211-mini.glb",
+      "parent": "b4-bed",
+      "local": [
+        0,
+        0.268,
+        0.01
+      ],
+      "rot_deg": 0,
+      "placement": "on the NEIDEN support ledges (ledge top 0.268 m, probed by raycast); NEIDEN is sold without slats; hidden by the mattress and its fitted sheet",
+      "dims_mm": {
+        "w": 900,
+        "d": 1930,
+        "h": 36
+      },
+      "dims_note": "h = model height (page gives no height)"
+    },
+    {
+      "id": "b4-mattress",
+      "product": "ÅBYGDA Saltea din spumă, fermă, alb, 90x200 cm",
+      "item_no": "504.814.88",
+      "url": "https://www.ikea.com/ro/ro/p/abygda-saltea-din-spuma-ferma-alb-50481488/",
+      "price_lei": 699,
+      "model": "50481488-mini.glb",
+      "parent": "b4-bed",
+      "local": [
+        0,
+        0.288,
+        0.01
+      ],
+      "rot_deg": 0,
+      "placement": "on the LURÖY slats, sunk 1.4 cm below the top of the NEIDEN side rails (rail top 0.302 m, inner frame z -0.99..1.01 probed by raycast)",
+      "dims_mm": {
+        "w": 900,
+        "d": 2000,
+        "h": 160
+      }
+    },
+    {
+      "id": "b4-bedding",
+      "product": "fitted sheet + duvet 150x200 + 1 pillow (parametric, not IKEA models), teal duvet, yellow pillow",
+      "kind": "bedding",
+      "parent": "b4-mattress",
+      "local": [
+        0,
+        0.161,
+        0
+      ],
+      "rot_deg": 0,
+      "dims_mm": {
+        "w": 900,
+        "d": 2000,
+        "h": 160
+      },
+      "colors": {
+        "duvet": "#2f8f83",
+        "fold": "#f3ecd9",
+        "pillow": "#f6c64a",
+        "sheet": "#d5e6e0"
+      }
+    },
+    {
+      "id": "b4-nightstand",
+      "product": "KRONÖREN Noptieră, pin, 39x32x55 cm",
+      "item_no": "006.108.07",
+      "url": "https://www.ikea.com/ro/ro/p/kronoeren-noptiera-pin-00610807/",
+      "price_lei": 79.9,
+      "model": "00610807-mini.glb",
+      "x": 6.94,
+      "y": 1.675,
+      "rot_deg": 270,
+      "placement": "against the east wall, right next to the head of the bed; south of the light switch",
+      "dims_mm": {
+        "w": 390,
+        "d": 320,
+        "h": 550
+      }
+    },
+    {
+      "id": "b4-wardrobe",
+      "product": "SMÅGÖRA Dulap de haine, alb, 80x50x187 cm",
+      "item_no": "104.608.88",
+      "url": "https://www.ikea.com/ro/ro/p/smagoera-dulap-de-haine-alb-10460888/",
+      "price_lei": 699,
+      "model": "10460888-mini.glb",
+      "x": 5.7,
+      "y": 3.166,
+      "rot_deg": 0,
+      "placement": "back against the north wall, between the KALLAX and the socket at x 6.20 / the swing of the hall door; doors face south",
+      "dims_mm": {
+        "w": 800,
+        "d": 500,
+        "h": 1870
+      }
+    },
+    {
+      "id": "b4-kallax",
+      "product": "KALLAX Etajeră, alb, 77x147 cm",
+      "item_no": "802.758.87",
+      "url": "https://www.ikea.com/ro/ro/p/kallax-etajera-alb-80275887/",
+      "price_lei": 259,
+      "model": "80275887-mini.glb",
+      "x": 4.86,
+      "y": 3.229,
+      "rot_deg": 0,
+      "placement": "standing (2x4 cubes) against the north wall, west of the wardrobe; just past the fully open balcony door leaf",
+      "dims_mm": {
+        "w": 770,
+        "d": 390,
+        "h": 1470
+      }
+    },
+    {
+      "id": "b4-chest",
+      "product": "RAST Comodă 3 sertare, pin, 60x35x59 cm",
+      "item_no": "206.098.60",
+      "url": "https://www.ikea.com/ro/ro/p/rast-comoda-3-sertare-pin-20609860/",
+      "price_lei": 249,
+      "model": "20609860-mini.glb",
+      "x": 3.781,
+      "y": 1.15,
+      "rot_deg": 90,
+      "placement": "against the west wall, south of the small window; drawers face east",
+      "dims_mm": {
+        "w": 600,
+        "d": 350,
+        "h": 590
+      }
+    }
+  ]
+}

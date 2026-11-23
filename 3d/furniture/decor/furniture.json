@@ -1,0 +1,40 @@
+{
+  "_note": "Decor pieces outside the living room, group 'furniture-decor'. Private use only: IKEA 3D models from the product pages (rotera viewer); never publish or commit to a public repo. x, y = plan metres (DXF: x right, y up), h = centre height; rot_deg = world rotation.y = plan angle CCW, the front faces rot_deg - 90. orient 'wall' = the GLB lies flat and is stood up against the wall. led = glow settings (emissive body, halo on the wall, PointLight).",
+  "pieces": [
+    {
+      "id": "b3-led-ring",
+      "product": "VARMBLIXT Aplică LED, alb metal / cerc, Ø50 cm",
+      "item_no": "605.314.64",
+      "url": "https://www.ikea.com/ro/ro/p/varmblixt-aplica-led-alb-metal-cerc-60531464/",
+      "price_lei": 349,
+      "model": "60531464-mini.glb",
+      "orient": "wall",
+      "room": 3,
+      "x": 5.55,
+      "y": 6.578,
+      "h": 1.7,
+      "rot_deg": 0,
+      "placement": "bedroom 3, north wall (shared with the kitchen, face y 6.619), middle of the wall (x 3.988..7.11), above the long side of the SLATTUM bed; facing south",
+      "dims_mm": {
+        "w": 500,
+        "d": 70,
+        "h": 500
+      },
+      "led": {
+        "_note": "ring_center = offset of the ring centre inside the model bbox (the model also has the cable + plug hanging below the ring); h is the ring centre height",
+        "color": "#ffc47a",
+        "emissive": 1.4,
+        "diameter_m": 0.5,
+        "halo_m": 1.8,
+        "halo_alpha": 1.0,
+        "intensity": 0.35,
+        "distance": 3.5,
+        "light_z": 0.45,
+        "ring_center": [
+          0,
+          0.091
+        ]
+      }
+    }
+  ]
+}

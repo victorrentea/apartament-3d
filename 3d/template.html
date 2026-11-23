@@ -1,0 +1,680 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Apartament 3D</title>
+<style>
+  :root { --bg: #eef1f4; --fg: #1d2430; --panel: rgba(255,255,255,.88); --line: #c9d0d8; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #15191f; --fg: #e6e9ee; --panel: rgba(28,33,41,.88); --line: #3a4250; } }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--fg); font: 14px/1.4 system-ui, sans-serif; overflow: hidden; }
+  #c { display: block; width: 100vw; height: 100vh; }
+  #prodwrap { position: fixed; top: 12px; right: 12px; display: flex; gap: 8px; align-items: flex-start; z-index: 5; font: 13px/1.35 system-ui, sans-serif; }
+  #daynight { font: inherit; background: var(--panel); color: inherit; border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; white-space: nowrap; cursor: pointer; }
+  #pinfo { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; white-space: nowrap; cursor: pointer; user-select: none; }
+  #ptip { position: fixed; display: none; pointer-events: none; z-index: 9; background: rgba(20,22,26,.92); color: #fff; padding: 7px 10px; border-radius: 8px; font: 13px/1.4 system-ui, sans-serif; white-space: nowrap; }
+  #ptip small { opacity: .7; }
+  #prod { max-width: 70vw; max-height: 80vh; overflow: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; font: 13px/1.35 system-ui, sans-serif; z-index: 5; }
+  #prod summary { cursor: pointer; font-weight: 600; user-select: none; }
+  #prod h4 { margin: 10px 0 3px; font-size: 12px; opacity: .7; text-transform: uppercase; letter-spacing: .04em; }
+  #prod a { display: block; white-space: nowrap; border-radius: 4px; color: inherit; text-decoration: none; padding: 2px 0; }
+  #prod a:hover { text-decoration: underline; }
+  #prod a:hover { background: rgba(255,190,40,.25); }
+  #prod h4 { white-space: nowrap; }
+  #prod small { opacity: .6; }
+  #ui { position: fixed; top: 12px; left: 12px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+        padding: 10px 12px; max-width: calc(100vw - 48px); backdrop-filter: blur(6px); }
+  #ui b { display: block; margin-bottom: 6px; }
+  #ui label { display: flex; align-items: center; gap: 8px; margin: 4px 0; }
+  #ui button { font: inherit; padding: 4px 10px; border-radius: 6px; border: 1px solid var(--line); background: transparent; color: inherit; cursor: pointer; }
+  #hint { opacity: .75; font-size: 12px; margin-top: 6px; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="cam" style="position:fixed;right:10px;bottom:8px;font:12px/1.3 ui-monospace,monospace;background:rgba(0,0,0,.55);color:#fff;padding:4px 8px;border-radius:6px;user-select:all"></div>
+<!--__PRODUCTS__-->
+<div id="ptip"></div>
+<div id="ui">
+  <b>Apartament 3D</b>
+  <label>Tăietură pereți <input id="cut" type="range" min="0.3" max="2.7" step="0.05" value="2.7"> <span id="cutv">2.70 m</span></label>
+  <button id="walk">Plimbare (WASD)</button> <button id="top">Vedere de sus</button>
+  <div id="hint">Mută: drag · rotește în jurul centrului: ⌘ + drag · zoom: rotiță<br>Shift pe o piesă: nume și preț · Shift + click: pagina produsului<br>Plimbare: W A S D · E deschide / închide ușa · Esc iese</div>
+</div>
+<script>const DATA=/*__DATA__*/null;</script>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.183.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.183.0/examples/jsm/",
+  "three/examples/jsm/": "https://cdn.jsdelivr.net/npm/three@0.183.0/examples/jsm/",
+  "postprocessing": "https://cdn.jsdelivr.net/npm/postprocessing@6.39.5/build/index.js",
+  "n8ao": "https://cdn.jsdelivr.net/npm/n8ao@2.0.1/dist/N8AO.js"
+} }
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { N8AOPass } from 'n8ao';
+
+const H = DATA.H, f = DATA.floor;
+const cx = (f.x0 + f.x1) / 2, cy = (f.y0 + f.y1) / 2;
+// plan (x, y) in metres, y up  ->  world (x, height, -y), centred
+const W = (x, y, h = 0) => new THREE.Vector3(x - cx, h, -(y - cy));
+
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));   // Retina at 2x costs ~2x the fragment work; quality steps down further if frames get slow (see render loop)
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFShadowMap;           // r183: PCFSoftShadowMap is deprecated (falls back to PCF); softness = shadow.radius
+renderer.toneMapping = THREE.NeutralToneMapping;          // lamps are bright up close: roll the highlights off instead of clipping
+renderer.localClippingEnabled = true;
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xcfe0ee);           // light sky, also in dark mode: windows must not look black
+
+const camera = new THREE.PerspectiveCamera(50, 1, 0.05, 200);
+camera.position.set(9, 14, 13);
+const orbit = new OrbitControls(camera, canvas);
+orbit.enableDamping = true;
+// left drag = orbit on a sphere around the point at the centre of the view; cmd/ctrl/shift + left drag or right drag = pan
+orbit.mouseButtons = { LEFT: THREE.MOUSE.PAN, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.ROTATE };   // cmd/ctrl/shift + left = rotate
+orbit.screenSpacePanning = true;
+orbit.zoomToCursor = true;
+orbit.panSpeed = 1.15;                           // with the target on the floor (below), a drag moves the flat as far as the mouse travels
+// Pan distance in OrbitControls is proportional to the camera-target distance, and zoom-to-cursor / rotations let the
+// target drift close to the camera or up in the air, which made panning crawl. Before every drag, put the target back
+// on the floor along the current view ray: the picture doesn't change, but pan speed and the rotation pivot are right again.
+function anchorTarget() {
+  const d = orbit.target.clone().sub(camera.position).normalize();
+  let k = d.y < -0.03 ? camera.position.y / -d.y : 25;
+  k = Math.min(Math.max(k, 1.5), 40);
+  orbit.target.copy(camera.position).addScaledVector(d, k);
+}
+// Plain drag = map-style pan done here, not by OrbitControls: the floor point grabbed stays under the cursor,
+// whatever the zoom or tilt. Cmd/Ctrl + drag is left to OrbitControls (rotate around the anchored floor point).
+const floorHit = e => {
+  const r = new THREE.Raycaster(); r.setFromCamera(new THREE.Vector2(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1), camera);
+  const o = r.ray.origin, d = r.ray.direction; if (d.y > -0.02) return null;
+  const k = -o.y / d.y; return k > 80 ? null : new THREE.Vector3(o.x + d.x * k, 0, o.z + d.z * k);
+};
+let grab = null;
+canvas.addEventListener('pointerdown', e => {
+  if (!orbit.enabled) return;
+  anchorTarget();
+  if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey) return;
+  grab = floorHit(e); if (!grab) return;                    // looking at the sky: let OrbitControls pan
+  e.stopImmediatePropagation(); canvas.setPointerCapture(e.pointerId);
+}, true);
+canvas.addEventListener('pointermove', e => {
+  if (!grab) return;
+  const h = floorHit(e); if (!h) return;
+  const dlt = grab.clone().sub(h); camera.position.add(dlt); orbit.target.add(dlt);
+});
+const endGrab = () => { grab = null; };
+canvas.addEventListener('pointerup', endGrab); canvas.addEventListener('pointercancel', endGrab);
+const ROTATE_CURSOR = `url("data:image/svg+xml,${encodeURIComponent('<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'28\' height=\'28\'><g fill=\'none\' stroke=\'white\' stroke-width=\'5\'><path d=\'M22 14a8 8 0 1 1-3-6.2\'/></g><g fill=\'none\' stroke=\'black\' stroke-width=\'2.4\'><path d=\'M22 14a8 8 0 1 1-3-6.2\'/></g><path d=\'M15 3l7 3-5 5z\' fill=\'black\' stroke=\'white\' stroke-width=\'1\'/></svg>')}") 14 14, alias`;
+function setCursor(e) { canvas.style.cursor = (e.metaKey || e.ctrlKey) ? ROTATE_CURSOR : 'move'; }
+canvas.style.cursor = 'move';
+addEventListener('keydown', setCursor); addEventListener('keyup', setCursor); canvas.addEventListener('pointermove', setCursor);
+orbit.maxPolarAngle = Math.PI * 0.49;
+
+// ================= lighting engine =================
+// Indoors the light comes from the lamps: every room's pendant is a shadow-casting point light, so a wardrobe's
+// shadow always falls away from its lamp. The building shell (walls, lintel band, sills, ceiling) stops light
+// through invisible closed solids, so a lamp lights only its own room and the sun gets in only through the windows.
+// Ambient = sky (hemisphere) + a soft studio environment; screen-space AO (N8AO) adds contact shadows and dark corners.
+// Anything added later (IKEA GLBs, boxes) is classified automatically: opaque meshes cast + receive; glass,
+// transparent, emissive light fittings and lines never cast. Shadow maps are static: re-rendered only when the
+// scene changes (object added/removed, a door swinging): no shadow passes per frame, only the sampling cost.
+const LIGHT = { hemi: 0.25, env: 0.15, lamp: 24, lampColor: 0xffe6c8, lampRange: 9, lampRangeUnshadowed: 3.2, sun: 2.6, aoRadius: 0.45, aoIntensity: 3 };
+const hemi = new THREE.HemisphereLight(0xffffff, 0x8a8070, LIGHT.hemi); scene.add(hemi);
+{ const pmrem = new THREE.PMREMGenerator(renderer);
+  scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture; scene.environmentIntensity = LIGHT.env; pmrem.dispose(); }
+const shadowLights = [];                                   // lights with static shadow maps, refreshed on scene changes
+// WebGL limit: every shadow-casting light is one more sampler in EVERY lit shader, next to the material's own maps
+// (IKEA GLBs: map + normal + rough + metal + ao + env = 6) + three's DFG LUT. Apple GPUs (ANGLE/Metal) give 16 units.
+// So only the lamps nearest to where you look cast shadows (constant count = no shader recompiles); the rest light unshadowed.
+let maxMatTex = 1;
+const texCount = m => { let n = m.envMap ? 0 : 1; for (const k in m) if (m[k] && m[k].isTexture) n++; return n; };   // +1: scene.environment
+const shadowSlots = () => Math.max(1, renderer.capabilities.maxTextures - maxMatTex - 3);
+const roomLamps = [];
+let lampFocus = null;
+function assignLampShadows(force = false) {          // the N lamps nearest the view focus cast; re-ranked when the focus moves 0.5 m
+  const focus = (fp.isLocked ? camera.position : orbit.target).clone().setY(0);
+  if (!force && lampFocus && lampFocus.distanceTo(focus) < 0.5) return;
+  lampFocus = focus;
+  const n = shadowSlots() - (sun.castShadow ? 1 : 0);
+  const d = l => Math.hypot(l.position.x - focus.x, l.position.z - focus.z);
+  [...roomLamps].sort((a, b) => d(a) - d(b)).forEach((l, i) => { const on = i < n; if (l.castShadow !== on) { l.castShadow = on; l.shadow.needsUpdate = true; }
+    l.distance = on ? LIGHT.lampRange : LIGHT.lampRangeUnshadowed; });   // an unshadowed lamp shines through walls: keep it short
+}
+function markShadowsDirty(near, radius = Infinity) {      // near: world point (e.g. a door) -> only lights that reach it
+  for (const l of shadowLights) if (!near || l.isDirectionalLight || l.position.distanceTo(near) < Math.min(radius, l.distance || Infinity))
+    l.shadow.needsUpdate = true;
+}
+function staticShadow(light) { light.shadow.autoUpdate = false; light.shadow.needsUpdate = true; shadowLights.push(light); return light; }
+const sun = new THREE.DirectionalLight(0xfff1dc, LIGHT.sun);
+sun.position.set(-8, 14, 6);
+sun.castShadow = true;                                    // the ceiling + walls let it in only through the windows
+sun.shadow.mapSize.set(2048, 2048);
+Object.assign(sun.shadow.camera, { left: -11, right: 11, top: 11, bottom: -11, near: 1, far: 40 });
+sun.shadow.bias = -0.008;        // large on purpose: the shell solids' inner end faces sit exactly on the wall surface at every seam and drew dark lines
+sun.shadow.normalBias = 0.02;
+sun.shadow.radius = 3;
+scene.add(staticShadow(sun));
+// automatic shadow policy, applied to everything that is ever added to the scene
+const mats = o => [].concat(o.material).filter(Boolean);
+function autoShadow(o) {
+  if (!o.isMesh) return;
+  for (const m of mats(o)) { const n = texCount(m); if (n > maxMatTex) { maxMatTex = n; lampFocus = null; } }   // fewer lamp shadows if needed
+  o.receiveShadow = o.userData.receiveShadow ?? true;
+  if (o.userData.castShadow !== undefined) { o.castShadow = o.userData.castShadow; return; }
+  o.castShadow = !mats(o).some(m => m.colorWrite === false || m.transmission > 0 || (m.transparent && m.opacity < 0.95)
+    || (m.emissive && m.emissiveIntensity > 0 && m.emissive.getHex() !== 0));   // glowing shade/glass: the bulb is inside it
+}
+const watched = new WeakSet();
+const casts = root => { let c = false; root.traverse(o => { c ||= o.isMesh && o.castShadow && o.visible; }); return c; };
+function watch(root) {
+  root.traverse(o => {
+    autoShadow(o);
+    if (watched.has(o)) return; watched.add(o);
+    o.addEventListener('childadded', e => { watch(e.child); if (casts(e.child)) markShadowsDirty(); });
+    o.addEventListener('childremoved', e => { if (casts(e.child)) markShadowsDirty(); });   // hover halos etc. cost nothing
+  });
+}
+// invisible, shadow-only closed solid (no colour, no depth: the visible finishes stay the textured wall faces)
+const shadowOnlyMat = new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: false });
+function shadowSolid(geo) { const m = new THREE.Mesh(geo, shadowOnlyMat); m.userData.castShadow = true; m.userData.receiveShadow = false; m.name = 'shadow-shell'; return m; }
+
+// one clipping plane = "dollhouse" cut of every wall above a height
+const cut = new THREE.Plane(new THREE.Vector3(0, -1, 0), H.wall + 0.01);   // just above the caps (no z-fight)
+// lintels and sills sit in the openings; polygonOffset keeps them behind any wall face they touch (no z-fighting flicker)
+const wallMat = new THREE.MeshStandardMaterial({ color: 0xf4f1ea, roughness: 0.9, clippingPlanes: [cut], clipShadows: true, side: THREE.DoubleSide,
+  polygonOffset: true, polygonOffsetFactor: 2, polygonOffsetUnits: 2 });
+const capMat = new THREE.MeshStandardMaterial({ color: 0xf7f6f2, roughness: 1, clippingPlanes: [cut] });   // wall tops: white
+const glassMat = new THREE.MeshStandardMaterial({ color: 0x9ccaf0, transparent: true, opacity: 0.35, roughness: 0.1, clippingPlanes: [cut] });
+const pvcMat = new THREE.MeshStandardMaterial({ color: 0xfafafa, roughness: 0.4, clippingPlanes: [cut] });
+const railMat = new THREE.MeshStandardMaterial({ color: 0xc9ced4, metalness: 0.6, roughness: 0.35 });
+const edgeMat = new THREE.LineBasicMaterial({ color: 0x3a3f46, clippingPlanes: [cut] });
+
+const group = new THREE.Group();
+scene.add(group);
+function addMesh(geo, mat, edges = false) {
+  const m = new THREE.Mesh(geo, mat);
+  // cast / receive: decided by the lighting engine (autoShadow)
+  group.add(m);
+  if (edges) group.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo, 30), edgeMat));
+  return m;
+}
+
+// wall finishes per room: paint, wallpaper (stripes / dots) or tiles, drawn on a canvas and repeated
+function finish(kind, base, accent) {
+  const c = document.createElement('canvas'); c.width = c.height = 256;
+  const g = c.getContext('2d');
+  g.fillStyle = base; g.fillRect(0, 0, 256, 256);
+  g.fillStyle = accent; g.strokeStyle = accent;
+  if (kind === 'stripes') for (let x = 0; x < 256; x += 32) g.fillRect(x, 0, 12, 256);
+  if (kind === 'dots') for (let y = 16; y < 256; y += 32) for (let x = (y / 32 % 2) * 16 + 16; x < 256; x += 32) { g.beginPath(); g.arc(x, y, 5, 0, 7); g.fill(); }
+  if (kind === 'tiles') { g.lineWidth = 3; for (let i = 0; i <= 256; i += 64) { g.beginPath(); g.moveTo(i, 0); g.lineTo(i, 256); g.moveTo(0, i); g.lineTo(256, i); g.stroke(); } }
+  // (paint = plain colour)
+  const tx = new THREE.CanvasTexture(c);
+  tx.wrapS = tx.wrapT = THREE.RepeatWrapping; tx.colorSpace = THREE.SRGBColorSpace; tx.anisotropy = 4;
+  return new THREE.MeshStandardMaterial({ map: tx, roughness: kind === 'tiles' ? 0.35 : 0.9, clippingPlanes: [cut], clipShadows: true, side: THREE.DoubleSide });
+}
+// tile = metres covered by one canvas repeat
+const ROOM = {
+  '-1': ['paint', '#f6f5f1', '#e4e2dc', 1.2],   // reveals / jambs in the openings
+  0:  ['paint',   '#ecebe6', '#d8d6cf', 1.2],   // outside of the building
+  1:  ['paint',   '#efe0c8', '#d9c4a3', 1.2],   // Camera 17,80 - warm sand
+  2:  ['paint'  , '#dfe8d8', '#c9d8be', 0.8],   // Camera 11,45 - sage striped wallpaper
+  3:  ['paint',   '#d6e4f0', '#bccfe0', 1.2],   // Camera 10,23 - light blue
+  4:  ['paint',   '#ebe0f0', '#d4c2df', 0.6],   // Camera 10,23 - lavender dotted wallpaper
+  5:  ['paint',   '#f3efe2', '#d9d2bd', 0.6],   // Bucatarie - cream tiles
+  6:  ['paint',   '#e6f1f6', '#b9d3df', 0.4],   // Baie - white/blue tiles
+  7:  ['paint',   '#d9efe9', '#a9d3c7', 0.4],   // Baie - aqua tiles
+  8:  ['paint',   '#e4e4e4', '#cfcfcf', 1.2],   // Camara
+  9:  ['paint',   '#e4e4e4', '#cfcfcf', 1.2],   // Debara
+  10: ['paint',   '#e4e4e4', '#cfcfcf', 1.2],   // Debara
+  11: ['paint',   '#e9e2d6', '#d3c9b8', 1.2],   // Hol - warm grey
+  12: ['paint',   '#f3ecc9', '#ddd3a6', 1.2],   // Oficiu - pale yellow
+  13: ['paint',   '#e8e4dc', '#d2ccc0', 1.2],   // Balcon
+  14: ['paint',   '#e8e4dc', '#d2ccc0', 1.2],   // Balcon
+};
+const roomMat = {};
+for (const [k, [kind, base, accent]] of Object.entries(ROOM)) roomMat[k] = finish(kind, base, accent);
+
+// walls: three height bands, each one continuous; every face finished like the room it faces
+for (const { o, h } of DATA.caps) {
+  const shape = new THREE.Shape(o.map(([x, y]) => new THREE.Vector2(x - cx, y - cy)));
+  for (const hole of h) shape.holes.push(new THREE.Path(hole.map(([x, y]) => new THREE.Vector2(x - cx, y - cy))));
+  const cap = new THREE.ShapeGeometry(shape);
+  cap.rotateX(-Math.PI / 2); cap.translate(0, H.wall, 0);
+  addMesh(cap, capMat);
+}
+for (const [x0, y0, x1, y1, k, h0, h1] of DATA.bandFaces) {
+  const a = W(x0, y0), b = W(x1, y1), len = a.distanceTo(b), hh = h1 - h0;
+  const g = new THREE.PlaneGeometry(len + 0.002, hh + 0.001);        // 1 mm overlap: no hairline cracks at corners or between bands
+  const m = new THREE.Mesh(g, roomMat[k] || roomMat[0]);
+  m.position.set((a.x + b.x) / 2, (h0 + h1) / 2, (a.z + b.z) / 2);
+  m.rotation.y = -Math.atan2(b.z - a.z, b.x - a.x);
+  m.userData.castShadow = false;   // double-sided planes shadowing themselves = acne; the closed shell solids cast instead
+  group.add(m);
+}
+// shadow shell: closed solids, so lamp light stays in its room and sunlight enters only through the windows
+{
+  const shapeOf = (o, holes = []) => { const s = new THREE.Shape(o.map(([x, y]) => new THREE.Vector2(x - cx, y - cy)));
+    for (const h of holes) s.holes.push(new THREE.Path(h.map(([x, y]) => new THREE.Vector2(x - cx, y - cy)))); return s; };
+  const prism = (shape, h0, h1) => { const g = new THREE.ExtrudeGeometry(shape, { depth: h1 - h0, bevelEnabled: false });
+    g.rotateX(-Math.PI / 2); g.translate(0, h0, 0); return g; };
+  for (const w of DATA.walls) group.add(shadowSolid(prism(shapeOf(w), 0, H.wall)));                       // wall pieces
+  for (const { o, h } of DATA.caps) group.add(shadowSolid(prism(shapeOf(o, h), Math.min(H.door, H.win), H.wall)));   // band over doors / windows
+  for (const { r: [x0, y0, x1, y1], k } of DATA.gaps) if (k === 'window') {                                // parapet under each window
+    const g = new THREE.BoxGeometry(x1 - x0, H.sill, y1 - y0); g.translate((x0 + x1) / 2 - cx, H.sill / 2, -((y0 + y1) / 2 - cy));
+    group.add(shadowSolid(g));
+  }
+}
+// soffits over the openings and window-sill tops: white horizontal faces
+for (const { r: [x0, y0, x1, y1], k } of DATA.gaps) {
+  const soffit = new THREE.Mesh(new THREE.PlaneGeometry(x1 - x0, y1 - y0), capMat);
+  soffit.rotation.x = Math.PI / 2; soffit.position.copy(W((x0 + x1) / 2, (y0 + y1) / 2, k === 'window' ? H.win : H.door)); group.add(soffit);
+  if (k === 'window') {
+    const sill = new THREE.Mesh(new THREE.PlaneGeometry(x1 - x0, y1 - y0), capMat);
+    sill.rotation.x = -Math.PI / 2; sill.position.copy(W((x0 + x1) / 2, (y0 + y1) / 2, H.sill)); group.add(sill);
+  }
+}
+
+// openings: a gap rect gets a lintel; a window also a sill and a pane
+function box(x0, y0, x1, y1, h0, h1, mat, edges = false) {
+  if (h1 - h0 < 1e-3) return;
+  const g = new THREE.BoxGeometry(x1 - x0, h1 - h0, y1 - y0);
+  g.translate((x0 + x1) / 2 - cx, (h0 + h1) / 2, -((y0 + y1) / 2 - cy));
+  addMesh(g, mat, edges);
+}
+for (const { r: [x0, y0, x1, y1], k, axis } of DATA.gaps) {
+  const top = k === 'window' ? H.win : H.door;
+  // white core (soffit + top); its long sides are covered by the room-finished quads below, 1 mm proud
+  const ins = 0.001, [ix0, iy0, ix1, iy1] = axis === 'x' ? [x0, y0 + ins, x1, y1 - ins] : [x0 + ins, y0, x1 - ins, y1];
+
+  if (k === 'window') {
+
+    // pane in the middle of the wall thickness
+    const t = 0.02;
+    const fw = 0.06, fd = 0.07;                        // PVC profile width / depth
+    if (axis === 'x') { const m = (y0 + y1) / 2; box(x0, m - t, x1, m + t, H.sill, H.win, glassMat, false);
+      box(x0, m - fd / 2, x0 + fw, m + fd / 2, H.sill, H.win, pvcMat); box(x1 - fw, m - fd / 2, x1, m + fd / 2, H.sill, H.win, pvcMat);
+      box(x0, m - fd / 2, x1, m + fd / 2, H.sill, H.sill + fw, pvcMat); box(x0, m - fd / 2, x1, m + fd / 2, H.win - fw, H.win, pvcMat);
+      if (x1 - x0 > 0.9) box((x0 + x1) / 2 - fw / 2, m - fd / 2, (x0 + x1) / 2 + fw / 2, m + fd / 2, H.sill, H.win, pvcMat); }
+    else { const m = (x0 + x1) / 2; box(m - t, y0, m + t, y1, H.sill, H.win, glassMat, false);
+      box(m - fd / 2, y0, m + fd / 2, y0 + fw, H.sill, H.win, pvcMat); box(m - fd / 2, y1 - fw, m + fd / 2, y1, H.sill, H.win, pvcMat);
+      box(m - fd / 2, y0, m + fd / 2, y1, H.sill, H.sill + fw, pvcMat); box(m - fd / 2, y0, m + fd / 2, y1, H.win - fw, H.win, pvcMat);
+      if (y1 - y0 > 0.9) box(m - fd / 2, (y0 + y1) / 2 - fw / 2, m + fd / 2, (y0 + y1) / 2 + fw / 2, H.sill, H.win, pvcMat); }
+  }
+}
+
+// balcony parapets: an old block, so solid concrete 1 m high, between the two rail lines of each balcony
+const concreteMat = new THREE.MeshStandardMaterial({ color: 0xc4c0b8, roughness: 0.95, clippingPlanes: [cut] });
+{
+  const R = DATA.rails, used = new Set();
+  for (let i = 0; i < R.length; i++) {
+    if (used.has(i)) continue;
+    // its partner: the other rail with the same number of points, closest on average
+    let j = -1, best = 1e9;
+    for (let k = 0; k < R.length; k++) if (k !== i && !used.has(k) && R[k].length === R[i].length) {
+      const d = R[i].reduce((s, p, q) => s + Math.hypot(p[0] - R[k][q][0], p[1] - R[k][q][1]), 0) / R[i].length;
+      if (d < best) { best = d; j = k; }
+    }
+    used.add(i); if (j >= 0) used.add(j);
+    const mid = j >= 0 ? R[i].map((p, q) => [(p[0] + R[j][q][0]) / 2, (p[1] + R[j][q][1]) / 2]) : R[i];
+    const th = j >= 0 ? Math.max(0.1, best + 0.04) : 0.12;
+    for (let q = 0; q + 1 < mid.length; q++) {
+      const A = W(...mid[q], 0), B = W(...mid[q + 1], 0), len = A.distanceTo(B);
+      if (len < 0.005) continue;
+      const m = new THREE.Mesh(new THREE.BoxGeometry(len + th, H.rail, th), concreteMat);
+      m.position.set((A.x + B.x) / 2, H.rail / 2, (A.z + B.z) / 2);
+      m.rotation.y = -Math.atan2(B.z - A.z, B.x - A.x);
+      m.castShadow = m.receiveShadow = true;
+      group.add(m);
+    }
+  }
+}
+
+// floor: footprint raster from the generator, transparent outside
+const tex = new THREE.TextureLoader().load('data:image/png;base64,' + f.png);
+tex.colorSpace = THREE.SRGBColorSpace;
+tex.anisotropy = 8;
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(f.x1 - f.x0, f.y1 - f.y0),
+  new THREE.MeshStandardMaterial({ map: tex, transparent: true, alphaTest: 0.5, roughness: 0.8 }));
+floor.rotation.x = -Math.PI / 2;
+floor.position.y = 0.001;
+floor.receiveShadow = true;
+group.add(floor);
+// ceiling: faces down, so it is invisible from above (orbit / top view) and closes the rooms in walk mode
+const ctex = new THREE.TextureLoader().load('data:image/png;base64,' + DATA.ceiling);
+const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(f.x1 - f.x0, f.y1 - f.y0),
+  new THREE.MeshStandardMaterial({ color: 0xfbfaf7, emissive: 0xffffff, emissiveIntensity: 0.55, alphaMap: ctex, transparent: true, alphaTest: 0.5, roughness: 1, clippingPlanes: [cut], side: THREE.BackSide }));
+ceiling.rotation.x = -Math.PI / 2;              // same orientation as the floor (mask not mirrored); BackSide = seen only from below
+ceiling.position.y = H.wall - 0.001;
+group.add(ceiling);
+ceiling.userData.castShadow = true;             // always: the sun gets in only through the windows (BackSide -> its top face is what casts)
+
+// ceiling lights: canopy, stem, glowing shade + a warm point light per room
+const bulbMat = new THREE.MeshStandardMaterial({ color: 0xfff4dc, emissive: 0xffe2a8, emissiveIntensity: 1.4, roughness: 0.4, clippingPlanes: [cut] });
+const pendantBulbMat = bulbMat.clone();   // the room pendants are switched off by day; sconces (bulbMat) stay on
+const metalMat = new THREE.MeshStandardMaterial({ color: 0x8c8f94, metalness: 0.8, roughness: 0.3, clippingPlanes: [cut] });
+for (const [x, y] of DATA.lamps) {
+  const p = W(x, y);
+  const canopy = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, 0.03, 20), metalMat); canopy.position.set(p.x, H.wall - 0.015, p.z);
+  const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.006, 0.45, 8), metalMat); stem.position.set(p.x, H.wall - 0.25, p.z);
+  const shade = new THREE.Mesh(new THREE.SphereGeometry(0.14, 24, 16), pendantBulbMat); shade.position.set(p.x, H.wall - 0.55, p.z);
+  const light = new THREE.PointLight(LIGHT.lampColor, LIGHT.lamp, LIGHT.lampRange, 2); light.position.set(p.x, H.wall - 0.62, p.z);
+  light.shadow.mapSize.set(512, 512);                    // per cube face
+  light.shadow.camera.near = 0.1;                        // far = light.distance (automatic)
+  light.shadow.bias = -0.002;                            // depth bias (non-linear depth units)
+  light.shadow.normalBias = 0.025;                       // 2.5 cm along the normal: no acne on lit faces, no visible peter-panning
+  light.shadow.radius = 6;                               // soft-ish edge (a 25 cm shade, not a point)
+  roomLamps.push(staticShadow(light));                   // castShadow: assignLampShadows()
+  group.add(canopy, stem, shade, light);
+}
+
+// bathroom wall sconces: chrome back plate + frosted glowing glass cylinder lying along the wall
+const frostMat = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xfff0d6, emissiveIntensity: 1.2, roughness: 0.6, clippingPlanes: [cut] });
+for (const [x, y, nx, ny] of DATA.sconces) {
+  const g = new THREE.Group();
+  const back = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.07, 0.015), metalMat); back.position.z = 0.008; g.add(back);
+  const arm = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.02, 0.06), metalMat); arm.position.z = 0.04; g.add(arm);
+  const glass = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.30, 20), frostMat);
+  glass.rotation.z = Math.PI / 2; glass.position.z = 0.075; g.add(glass);
+  g.position.copy(W(x, y, 1.95));
+  g.rotation.y = Math.atan2(nx, -ny);
+  const light = new THREE.PointLight(0xfff0d6, LIGHT.lamp * 0.28, 3, 2);   // no shadow: short range keeps it in the bathroom
+  light.position.copy(W(x + nx * 0.25, y + ny * 0.25, 1.9));
+  group.add(g, light);
+}
+
+// doors: a leaf hinged on its jamb; shown ajar as drawn in the survey, E toggles closed / fully open in walk mode
+const leafMat = new THREE.MeshStandardMaterial({ color: 0xc8a57a, roughness: 0.65, clippingPlanes: [cut] });      // wooden room doors
+const entryMat = new THREE.MeshStandardMaterial({ color: 0x5b3d28, roughness: 0.6, clippingPlanes: [cut] });      // solid entrance door
+const doorLightMat = new THREE.MeshStandardMaterial({ color: 0xf2f6f7, roughness: 0.95, emissive: 0xffffff, emissiveIntensity: 0.25, clippingPlanes: [cut] });
+const doors = [];
+for (const [hx, hy, w, aClosed, aDrawn, glazed, shut] of DATA.doors) {
+  const pivot = new THREE.Group();
+  pivot.position.copy(W(hx, hy, 0));
+  let leaf;
+  if (glazed === 1) {                                 // balcony door: PVC frame + glass
+    leaf = new THREE.Group();
+    const lw = w - 0.02, lh = H.door - 0.02, fw = 0.08;
+    const bar = (bw, bh, x, y) => { const m = new THREE.Mesh(new THREE.BoxGeometry(bw, bh, 0.06), pvcMat); m.position.set(x, y, 0); leaf.add(m); };
+    bar(fw, lh, fw / 2, lh / 2); bar(fw, lh, lw - fw / 2, lh / 2); bar(lw, fw, lw / 2, fw / 2); bar(lw, fw, lw / 2, lh - fw / 2); bar(lw, 0.25, lw / 2, 0.125);
+    const pane = new THREE.Mesh(new THREE.BoxGeometry(lw - 2 * fw, lh - fw - 0.25, 0.02), glassMat); pane.position.set(lw / 2, 0.25 + (lh - fw - 0.25) / 2, 0); leaf.add(pane);
+    leaf.position.set(0.01, 0, 0);
+  } else {
+    leaf = new THREE.Mesh(new THREE.BoxGeometry(w - 0.02, H.door - 0.02, 0.04), glazed === 3 ? entryMat : leafMat);
+    leaf.position.set(w / 2, (H.door - 0.02) / 2, 0);
+    if (glazed === 2) {                               // bathroom door: wood with a narrow frosted light, not see-through
+      const lightPane = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.9, 0.046), doorLightMat); lightPane.position.set(0, 0.42, 0); leaf.add(lightPane);
+    }
+    leaf.receiveShadow = true;   // no sun shadow from interior objects
+  }
+  const knob = new THREE.Mesh(new THREE.SphereGeometry(0.025, 12, 8), metalMat);
+  knob.position.set(w - 0.09, 1.0, 0.04); pivot.add(leaf, knob);
+  const knob2 = knob.clone(); knob2.position.z = -0.04; pivot.add(knob2);
+  // plan angle a -> rotation.y = a (local +x maps to world (cos a, 0, -sin a) = plan direction a)
+  const d = Math.atan2(Math.sin(aDrawn - aClosed), Math.cos(aDrawn - aClosed));
+  const aOpen = aClosed + Math.sign(d) * Math.PI / 2;
+  const a0 = shut ? aClosed : aOpen;                     // entrance and pantry doors start closed, the rest wide open
+  const door = { pivot, hx, hy, w, aClosed, aOpen, angle: a0, target: a0 };   // start wide open, against the wall; E toggles
+  pivot.rotation.y = door.angle;
+  group.add(pivot);
+  doors.push(door);
+}
+function toggleNearestDoor() {
+  const px = camera.position.x + cx, py = -camera.position.z + cy;
+  let best = null, bd = 1.8;
+  for (const d of doors) {
+    const mx = d.hx + Math.cos(d.aClosed) * d.w / 2, my = d.hy + Math.sin(d.aClosed) * d.w / 2;
+    const dist = Math.hypot(px - mx, py - my);
+    if (dist < bd) { bd = dist; best = d; }
+  }
+  if (!best) return;
+  const closed = Math.abs(Math.atan2(Math.sin(best.target - best.aClosed), Math.cos(best.target - best.aClosed))) < 0.05;
+  best.target = closed ? best.aOpen : best.aClosed;
+}
+addEventListener('keydown', e => { if (e.code === 'KeyE' && fp.isLocked) toggleNearestDoor(); });
+function doorBlocks(x, y) {          // a (nearly) closed leaf is a wall
+  for (const d of doors) {
+    if (Math.abs(Math.atan2(Math.sin(d.angle - d.aClosed), Math.cos(d.angle - d.aClosed))) > 0.35) continue;
+    const ex = d.hx + Math.cos(d.angle) * d.w, ey = d.hy + Math.sin(d.angle) * d.w;
+    const vx = ex - d.hx, vy = ey - d.hy, t = Math.max(0, Math.min(1, ((x - d.hx) * vx + (y - d.hy) * vy) / (vx * vx + vy * vy)));
+    if (Math.hypot(x - (d.hx + t * vx), y - (d.hy + t * vy)) < 0.05) return true;
+  }
+  return false;
+}
+
+// switches (1.05 m) and sockets (0.30 m): small white plates on the wall face, facing into the room
+const plateMat = new THREE.MeshStandardMaterial({ color: 0xf6f6f4, roughness: 0.5, clippingPlanes: [cut] });
+const darkMat = new THREE.MeshStandardMaterial({ color: 0x3b3d40, roughness: 0.6, clippingPlanes: [cut] });
+function plate(x, y, nx, ny, h, kind) {
+  const g = new THREE.Group();
+  const base = new THREE.Mesh(new THREE.BoxGeometry(0.085, 0.085, 0.012), plateMat); base.position.z = 0.006; g.add(base);
+  if (kind === 'switch') { const r = new THREE.Mesh(new THREE.BoxGeometry(0.045, 0.05, 0.008), plateMat); r.position.z = 0.015; g.add(r); }
+  else for (const dx of [-0.012, 0.012]) { const hole = new THREE.Mesh(new THREE.CylinderGeometry(0.0035, 0.0035, 0.004, 8), darkMat); hole.rotation.x = Math.PI / 2; hole.position.set(dx, 0, 0.013); g.add(hole); }
+  const p = W(x, y, h); g.position.copy(p);
+  g.rotation.y = Math.atan2(nx, -ny);           // plate's +z towards the plan normal (nx, ny) -> world (nx, -ny)
+  group.add(g);
+}
+for (const [x, y, nx, ny] of DATA.switches) plate(x, y, nx, ny, 1.05, 'switch');
+for (const [x, y, nx, ny, h] of DATA.sockets) plate(x, y, nx, ny, h, 'socket');
+
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(60, 60), new THREE.MeshStandardMaterial({ color: scene.background.clone().multiplyScalar(0.93) }));
+ground.rotation.x = -Math.PI / 2;
+ground.position.y = -0.01;
+ground.receiveShadow = true;
+scene.add(ground);
+
+// ---- UI: wall cut height
+const cutIn = document.getElementById('cut'), cutV = document.getElementById('cutv');
+cutIn.oninput = () => { cut.constant = +cutIn.value >= H.wall ? H.wall + 0.01 : +cutIn.value; cutV.textContent = (+cutIn.value).toFixed(2) + ' m'; };
+
+// ---- walk mode: first person, eye at 1.6 m, collides with wall outlines
+const fp = new PointerLockControls(camera, document.body);
+const keys = {};
+addEventListener('keydown', e => keys[e.code] = true);
+addEventListener('keyup', e => keys[e.code] = false);
+document.getElementById('walk').onclick = () => {
+  orbit.enabled = false;
+  camera.position.copy(W(...DATA.start, 1.6));
+  camera.lookAt(camera.position.clone().add(new THREE.Vector3(0, 0, -1)));
+  cutIn.value = H.wall; cutIn.oninput();
+  fp.lock();
+};
+fp.addEventListener('unlock', () => { orbit.enabled = true; camera.position.set(9, 14, 13); orbit.target.set(0, 0, 0); });
+document.getElementById('top').onclick = () => { orbit.target.set(0, 0, 0); camera.position.set(0, 22, 0.01); orbit.update(); };
+
+function inPoly(x, y, poly) {
+  let c = false;
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const [xi, yi] = poly[i], [xj, yj] = poly[j];
+    if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) c = !c;
+  }
+  return c;
+}
+function blocked(wx, wz) {          // world -> plan, test a 0.2 m body
+  for (let a = 0; a < 8; a++) {
+    const x = wx + cx + 0.2 * Math.cos(a * Math.PI / 4), y = -wz + cy + 0.2 * Math.sin(a * Math.PI / 4);
+    if (DATA.walls.some(p => inPoly(x, y, p))) return true;
+    if (DATA.gaps.some(g => g.k === 'window' && x > g.r[0] && x < g.r[2] && y > g.r[1] && y < g.r[3])) return true;
+    if (doorBlocks(x, y)) return true;
+  }
+  return false;
+}
+
+// camera readout (plan metres: x right, y up, h height) + #cam= in the URL, so a view can be reproduced exactly
+const camEl = document.getElementById('cam');
+const look = new THREE.Vector3();
+function camText() {
+  const p = camera.position; camera.getWorldDirection(look);
+  const t = fp.isLocked ? p.clone().add(look) : orbit.target;
+  const f = v => v.toFixed(2);
+  return `${f(p.x + cx)},${f(-p.z + cy)},${f(p.y)};${f(t.x + cx)},${f(-t.z + cy)},${f(t.y)}`;
+}
+let lastCam = '';
+function updateCam() {
+  const s = camText(); if (s === lastCam) return; lastCam = s;
+  const [a, b] = s.split(';');
+  camEl.textContent = `cam ${a} → ${b}`;
+  history.replaceState(null, '', '#cam=' + s);
+}
+{
+  const m = location.hash.match(/cam=([-\d.]+),([-\d.]+),([-\d.]+);([-\d.]+),([-\d.]+),([-\d.]+)/);
+  if (m) { const v = m.slice(1).map(Number); camera.position.copy(W(v[0], v[1], v[2])); orbit.target.copy(W(v[3], v[4], v[5])); orbit.update(); }
+}
+setInterval(updateCam, 250);
+
+// post: N8AO renders the scene itself (honours clipping, BackSide ceiling, invisible shell) and adds the AO
+const composer = new EffectComposer(renderer);
+const ao = new N8AOPass(scene, camera, innerWidth, innerHeight);
+Object.assign(ao.configuration, { aoRadius: LIGHT.aoRadius, distanceFalloff: 1.0, intensity: LIGHT.aoIntensity, gammaCorrection: false });
+ao.setQualityMode('Medium'); ao.configuration.halfRes = true;   // half-res + depth-aware upsampling: ~40% of the AO cost on Retina
+composer.addPass(ao);
+composer.addPass(new OutputPass());                      // tone mapping + sRGB
+watch(scene);                                           // everything built so far + whatever comes later
+assignLampShadows(true);
+const perf = { n: 0, t: 0 };
+const quality = { ao: true, aoAllowed: true }; window.__quality = quality;
+let aoCam = new THREE.Matrix4(), stillFor = 0;
+// day / night: by day the pendants are off and the light comes from outside (sun through the windows + bright sky);
+// the wall lights in the windowless rooms (baths, hall, closets) stay on. By night the pendants light the rooms.
+const skyDay = new THREE.Color(0xcfe0ee), skyNight = new THREE.Color(0x1b2536);
+function setDay(day) {
+  for (const l of roomLamps) l.visible = !day;
+  pendantBulbMat.emissiveIntensity = day ? 0.05 : 1.4;
+  hemi.intensity = day ? 0.75 : LIGHT.hemi;
+  scene.environmentIntensity = day ? 0.4 : LIGHT.env;
+  sun.intensity = day ? 2.4 : 0.25; sun.color.set(day ? 0xfff1dc : 0x9fb4e0);
+  scene.background.copy(day ? skyDay : skyNight);
+  ground.material.color.copy(scene.background).multiplyScalar(0.93);
+  lampFocus = null; markShadowsDirty();
+  const btn = document.getElementById('daynight'); if (btn) btn.textContent = day ? '☀️ Zi' : '🌙 Noapte';
+  window.__day = day;
+}
+{ const btn = document.getElementById('daynight'); if (btn) btn.onclick = () => setDay(!window.__day); }
+setDay(true);
+const timer = new THREE.Timer();
+function resize() {
+  const w = innerWidth, h = innerHeight;
+  renderer.setSize(w, h, false);
+  composer.setPixelRatio(renderer.getPixelRatio()); composer.setSize(w, h);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+}
+addEventListener('resize', resize);
+resize();
+renderer.setAnimationLoop(() => {
+  timer.update();
+  const dt = Math.min(timer.getDelta(), 0.05);
+  for (const d of doors) {                       // swing doors towards their target angle
+    const diff = Math.atan2(Math.sin(d.target - d.angle), Math.cos(d.target - d.angle));
+    if (Math.abs(diff) > 1e-3) { d.angle += Math.sign(diff) * Math.min(Math.abs(diff), 2.2 * dt); d.pivot.rotation.y = d.angle;
+      markShadowsDirty(d.pivot.position, LIGHT.lampRange); }
+  }
+  if (fp.isLocked) {
+    const sp = 1.6 * dt, before = camera.position.clone();
+    const fwd = (keys.KeyW ? 1 : 0) - (keys.KeyS ? 1 : 0), side = (keys.KeyD ? 1 : 0) - (keys.KeyA ? 1 : 0);
+    fp.moveForward(fwd * sp); fp.moveRight(side * sp);
+    const want = camera.position.clone();
+    if (blocked(want.x, want.z)) {                 // slide along the obstacle: keep whichever world axis is free
+      if (!blocked(want.x, before.z)) camera.position.set(want.x, want.y, before.z);
+      else if (!blocked(before.x, want.z)) camera.position.set(before.x, want.y, want.z);
+      else camera.position.copy(before);
+    }
+  } else orbit.update();
+  if (window.__halo?.visible) { const k = 0.6 + 0.4 * Math.sin(performance.now() / 180); for (const m of window.__halo.children) if (m.isMesh) m.material.opacity = (m.geometry.type === 'RingGeometry' ? 0.4 : 0.22) * k; }
+  assignLampShadows();
+  // contact shading (AO) doubles the frame time: draw it only once the camera has been still for a moment
+  if (camera.matrixWorld.equals(aoCam)) stillFor += dt; else { stillFor = 0; aoCam.copy(camera.matrixWorld); }
+  quality.ao = quality.aoAllowed && stillFor > 0.25;
+  if (quality.ao) composer.render(dt); else renderer.render(scene, camera);   // N8AO renders the scene itself, so 'AO off' = plain render
+  // adaptive quality: if frames stay slow for ~1.5 s, render at a lower internal resolution (1.5 -> 1.25 -> 1), then drop the AO pass
+  perf.n++; perf.t += dt;
+  if (perf.t > 1.5) {
+    const ms = perf.t / perf.n * 1000; perf.n = perf.t = 0;
+    if (ms > 24 && document.hasFocus()) {
+      const pr = renderer.getPixelRatio();
+      if (pr > 1) { renderer.setPixelRatio(Math.max(1, pr - 0.25)); composer.setPixelRatio(renderer.getPixelRatio()); composer.setSize(innerWidth, innerHeight); }
+      else quality.aoAllowed = false;
+    }
+  }
+});
+// product list: hovering a product shows a pulsing halo around the piece(s) in the 3D scene, visible through walls
+{
+  const halo = new THREE.Group(); halo.visible = false; scene.add(halo);
+  const hm = o => Object.assign({ color: 0xffb020, transparent: true, depthTest: false, depthWrite: false }, o);
+  const clear = () => { halo.visible = false; halo.clear(); };
+  const show = a => {
+    clear();
+    const root = scene.getObjectByName(a.dataset.g); if (!root) return;
+    for (const id of a.dataset.ids.split(',')) {
+      const o = root.getObjectByName(id); if (!o) continue;
+      const b = new THREE.Box3().setFromObject(o); if (b.isEmpty()) continue;
+      const s = b.getSize(new THREE.Vector3()).addScalar(0.06), c = b.getCenter(new THREE.Vector3());
+      const geo = new THREE.BoxGeometry(s.x, s.y, s.z);
+      const fill = new THREE.Mesh(geo, new THREE.MeshBasicMaterial(hm({ opacity: 0.22 })));
+      const edge = new THREE.LineSegments(new THREE.EdgesGeometry(geo), new THREE.LineBasicMaterial(hm({ opacity: 1 })));
+      const r = Math.hypot(s.x, s.z) / 2;
+      const ring = new THREE.Mesh(new THREE.RingGeometry(r + 0.05, r + 0.45, 48), new THREE.MeshBasicMaterial(hm({ opacity: 0.35, side: THREE.DoubleSide })));
+      ring.rotation.x = -Math.PI / 2; ring.position.set(c.x, b.min.y + 0.02, c.z);
+      fill.position.copy(c); edge.position.copy(c);
+      for (const m of [ring, fill, edge]) { m.renderOrder = 999; halo.add(m); }
+    }
+    halo.visible = halo.children.length > 0;
+  };
+  for (const a of document.querySelectorAll('#prod a[data-ids]')) {
+    a.addEventListener('mouseenter', () => show(a)); a.addEventListener('mouseleave', clear);
+  }
+  window.__halo = halo;
+  /*__PMETA__*/
+  const tip = document.getElementById('ptip'), chk = document.getElementById('pinfoChk'), ray = new THREE.Raycaster();
+  let hot = null, pend = null;
+  const pick = e => {
+    const roots = scene.children.concat(group.children).filter(o => o.name && o.name.startsWith('furniture'));
+    ray.setFromCamera(new THREE.Vector2(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1), camera);
+    for (const h of ray.intersectObjects(roots, true)) {
+      let rootName = null; for (let o = h.object; o; o = o.parent) if (o.name && o.name.startsWith('furniture') && roots.includes(o)) rootName = o.name;
+      for (let o = h.object; o; o = o.parent) { const m = PMETA[rootName + '/' + o.name]; if (m) return { m, g: rootName, id: o.name }; }
+      return null;                                           // nearest thing under the cursor is furniture without a shop page
+    }
+    return null;
+  };
+  const hide = () => { if (hot) { hot = null; tip.style.display = 'none'; clear(); } };
+  canvas.addEventListener('pointermove', e => {
+    lastMove = e;
+    if (!e.shiftKey || e.buttons || !orbit.enabled) return hide();   // details only while Shift is held
+    if (pend) return; pend = requestAnimationFrame(() => {
+      pend = null;
+      const p = pick(e);
+      if (!p) return hide();
+      if (!hot || hot.id !== p.id || hot.g !== p.g) { hot = p; show({ dataset: { g: p.g, ids: p.id } }); }
+      const site = new URL(p.m.url).hostname.replace(/^www\./, '');
+      tip.innerHTML = `<b>${p.m.name}</b><br>${p.m.price ? p.m.price + ' lei · ' : ''}${site}<br><small>click (cu Shift apăsat) deschide pagina produsului</small>`;
+      tip.style.display = 'block';
+      tip.style.left = Math.min(e.clientX + 16, innerWidth - tip.offsetWidth - 8) + 'px'; tip.style.top = (e.clientY + 18) + 'px';
+    });
+  });
+  canvas.addEventListener('pointerleave', hide);
+  let lastMove = null;
+  addEventListener('keydown', e => { if (e.key === 'Shift' && !e.repeat && lastMove) canvas.dispatchEvent(new PointerEvent('pointermove', { clientX: lastMove.clientX, clientY: lastMove.clientY, shiftKey: true })); });
+  addEventListener('keyup', e => { if (e.key === 'Shift') hide(); });
+  canvas.addEventListener('pointerdown', e => {
+    if (hot && e.shiftKey && e.button === 0) { e.stopImmediatePropagation(); e.preventDefault(); window.open(hot.m.url, '_blank', 'noopener'); }
+    else hide();
+  }, true);
+}
+window.__app = { THREE, camera, orbit, blocked, W, DATA, scene, group, cx, cy, renderer, composer, ao, LIGHT, shadowLights, markShadowsDirty, roomLamps, assignLampShadows, shadowSlots };   // hook for headless checks
+window.__ready = true;
+</script>
+<!--__FURNITURE__-->
+</body>
+</html>

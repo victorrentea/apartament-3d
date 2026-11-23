@@ -1,0 +1,8 @@
+# working images and the original survey screenshot (shows the address) stay local
+*.png
+*.jpg
+*.bak
+rooms/
+.venv/
+__pycache__/
+.DS_Store

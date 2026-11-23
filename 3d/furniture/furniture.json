@@ -1,0 +1,248 @@
+{
+  "_note": "Private use only: IKEA 3D models from the product pages (rotera viewer). Do not publish or commit to a public repo. x, y = footprint centre in plan metres (DXF: x right, y up); rot_deg = world rotation.y = plan angle CCW; the model's front (+z in the GLB) faces plan angle rot_deg - 90. dims_mm = from the product page (w x d x h). A piece with \"parent\" is placed in that piece's local frame: \"local\" = [x, bottom height, z] in metres (glTF axes: x across, z = front direction), rot_deg relative to the parent. \"kind\": \"bedding\" is drawn parametrically (no IKEA model): duvet + 2 pillows sized from dims_mm. Optional \"lift_m\" raises a floor piece (the rug sits 2 mm up so it does not z-fight the floor plane). Optional \"tilt_deg\" rotates the model about its own x axis first (IKEA wall pictures are modelled lying flat). \"kind\": \"books\" draws a row of books (count, lean = indices of tipped books) on its parent shelf.",
+  "pieces": [
+    {
+      "id": "bed",
+      "product": "MALM Pat cu depozitare, alb, 160x200 cm",
+      "item_no": "204.048.06",
+      "url": "https://www.ikea.com/ro/ro/p/malm-pat-cu-depozitare-alb-20404806/",
+      "price_lei": 2399,
+      "model": "20404806-mini.glb",
+      "room": 2,
+      "x": 7.08,
+      "y": 15.581,
+      "rot_deg": 0,
+      "placement": "headboard against the north wall, centred in the room; foot towards the door",
+      "dims_mm": {
+        "w": 1750,
+        "d": 2100,
+        "h": 1000
+      }
+    },
+    {
+      "id": "mattress",
+      "product": "ÅKREHAMN Saltea din spumă, fermă, alb, 160x200 cm",
+      "item_no": "604.816.47",
+      "url": "https://www.ikea.com/ro/ro/p/akrehamn-saltea-din-spuma-ferma-alb-60481647/",
+      "price_lei": 1699,
+      "model": "60481647-mini.glb",
+      "room": 2,
+      "parent": "bed",
+      "local": [
+        0,
+        0.35,
+        -0.0085
+      ],
+      "rot_deg": 0,
+      "placement": "on the bed's slats (slat top 0.35 m, inner frame 1.61 x 2.013 m, both measured by raycasting the MALM model)",
+      "dims_mm": {
+        "w": 1600,
+        "d": 2000,
+        "h": 200
+      }
+    },
+    {
+      "id": "bedding",
+      "product": "duvet 200x200 + 2 pillows 50x60 (parametric, not an IKEA model)",
+      "kind": "bedding",
+      "room": 2,
+      "parent": "mattress",
+      "local": [
+        0,
+        0.198,
+        0
+      ],
+      "rot_deg": 0,
+      "placement": "on top of the mattress, pillows at the headboard end",
+      "dims_mm": {
+        "w": 1600,
+        "d": 2000,
+        "h": 200
+      }
+    },
+    {
+      "id": "nightstand-left",
+      "product": "BRIMNES Noptieră, alb, 39x41 cm",
+      "item_no": "102.349.42",
+      "url": "https://www.ikea.com/ro/ro/p/brimnes-noptiera-alb-10234942/",
+      "price_lei": 159,
+      "model": "10234942-mini.glb",
+      "room": 2,
+      "x": 5.987,
+      "y": 16.419,
+      "rot_deg": 0,
+      "placement": "north wall, left (west) of the bed",
+      "dims_mm": {
+        "w": 390,
+        "d": 410,
+        "h": 530
+      }
+    },
+    {
+      "id": "nightstand-right",
+      "product": "BRIMNES Noptieră, alb, 39x41 cm",
+      "item_no": "102.349.42",
+      "url": "https://www.ikea.com/ro/ro/p/brimnes-noptiera-alb-10234942/",
+      "price_lei": 159,
+      "model": "10234942-mini.glb",
+      "room": 2,
+      "x": 8.174,
+      "y": 16.419,
+      "rot_deg": 0,
+      "placement": "north wall, right (east) of the bed",
+      "dims_mm": {
+        "w": 390,
+        "d": 410,
+        "h": 530
+      }
+    },
+    {
+      "id": "wardrobe",
+      "product": "BRIMNES Dulap cu 3 uși, alb, 117x50x190 cm (aspect modificat: oglinda e pe ușa din dreapta, nu pe cea din mijloc ca în original)",
+      "item_no": "404.079.22",
+      "url": "https://www.ikea.com/ro/ro/p/brimnes-dulap-cu-3-usi-alb-40407922/",
+      "price_lei": 699,
+      "model": "40407922-mini.glb",
+      "room": 2,
+      "x": 6.339,
+      "y": 13.339,
+      "rot_deg": 180,
+      "placement": "against the south wall, between the south-west wall nib and the door swing; doors face the bed",
+      "dims_mm": {
+        "w": 1167,
+        "d": 502,
+        "h": 1900
+      },
+      "reskin": {
+        "_note": "Modified look, not the stock product: the stock BRIMNES has its mirror on the middle door. The middle mirror is covered with a plain panel (the model's own texture, UVs of the left door's panel), and a mirror panel of the same size/inset is put on the right door (as seen from the front). Rectangles [x0, y0, x1, y1] in metres in the model's centred frame (x to the viewer's right, y up from the floor), z = panel surface; all measured by raycasting the IKEA model.",
+        "mesh": "1",
+        "z": 0.2304,
+        "plain": [
+          {
+            "rect": [
+              -0.092,
+              0.1703,
+              0.0952,
+              1.7853
+            ],
+            "uv": [
+              [
+                0.4987,
+                0.4043
+              ],
+              [
+                0.4987,
+                0.4475
+              ],
+              [
+                0.8819,
+                0.4043
+              ],
+              [
+                0.8819,
+                0.4475
+              ]
+            ]
+          }
+        ],
+        "mirror": [
+          {
+            "rect": [
+              0.2977,
+              0.1703,
+              0.485,
+              1.7853
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "rug",
+      "product": "JÄRNVÄG Covor, fir scurt, model decorativ roz/bej, 80x150 cm",
+      "item_no": "806.230.66",
+      "url": "https://www.ikea.com/ro/ro/p/jaernvaeg-covor-fir-scurt-model-decorativ-roz-bej-80623066/",
+      "price_lei": 229,
+      "model": "80623066-mini.glb",
+      "room": 2,
+      "x": 5.79,
+      "y": 14.4,
+      "lift_m": 0.002,
+      "rot_deg": 0,
+      "placement": "bedside rug on the free floor west of the bed, long side along the bed: x 5.39-6.19 (bed starts at 6.20, window wall at 5.35), y 13.65-15.15 (wardrobe front at 13.60); fully visible, nothing on top, far from the door swing. Replaces the 133x195 JÄRNVÄG, which only fits under the bed (free floor past the foot is 0.92 m deep)",
+      "dims_mm": {
+        "w": 800,
+        "d": 1500,
+        "h": null
+      }
+    },
+    {
+      "id": "painting",
+      "product": "BLODFLÄDER Tablou, Sena la Giverny, 118x78 cm (ramă 120x80)",
+      "item_no": "206.019.15",
+      "url": "https://www.ikea.com/ro/ro/p/blodflaeder-tablou-sena-la-giverny-20601915/",
+      "price_lei": 299,
+      "model": "20601915-mini.glb",
+      "room": 2,
+      "x": 7.08,
+      "y": 16.627,
+      "lift_m": 1.26,
+      "rot_deg": 0,
+      "tilt_deg": 90,
+      "placement": "north wall above the headboard, centred on the bed; bottom edge 1.26 m (headboard top 1.01 m + 0.25), 4 mm off the wall",
+      "dims_mm": {
+        "w": 1200,
+        "d": 30,
+        "h": 800
+      }
+    },
+    {
+      "id": "shelf",
+      "product": "BERGSHULT / RAMSHULT Poliță, alb, 120x20 cm",
+      "item_no": "993.254.77",
+      "url": "https://www.ikea.com/ro/ro/p/bergshult-ramshult-polita-alb-s99325477/",
+      "price_lei": 125,
+      "model": "99325477-mini.glb",
+      "room": 2,
+      "x": 8.595,
+      "y": 15.55,
+      "lift_m": 1.155,
+      "rot_deg": 270,
+      "placement": "east wall north of the door (y 14.95-16.15, door swing ends at y 13.97, light switch at y 14.15), board top at 1.40 m, 4 mm off the wall",
+      "dims_mm": {
+        "w": 1200,
+        "d": 200,
+        "h": null
+      }
+    },
+    {
+      "id": "books",
+      "product": "books (parametric, not an IKEA model)",
+      "kind": "books",
+      "room": 2,
+      "parent": "shelf",
+      "local": [
+        0,
+        0.245,
+        0
+      ],
+      "rot_deg": 0,
+      "books": {
+        "count": 18,
+        "lean": [
+          7,
+          15
+        ],
+        "length_m": 1.15,
+        "depth_m": 0.2,
+        "seed": 11
+      },
+      "placement": "standing on the shelf board, two tipped over",
+      "dims_mm": {
+        "w": 1150,
+        "d": 200,
+        "h": 280
+      }
+    }
+  ]
+}
