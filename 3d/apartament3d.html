@@ -59,6 +59,7 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { N8AOPass } from 'n8ao';
+import { Reflector } from 'three/addons/objects/Reflector.js';
 
 const H = DATA.H, f = DATA.floor;
 const cx = (f.x0 + f.x1) / 2, cy = (f.y0 + f.y1) / 2;
@@ -222,7 +223,7 @@ function finish(kind, base, accent) {
   // (paint = plain colour)
   const tx = new THREE.CanvasTexture(c);
   tx.wrapS = tx.wrapT = THREE.RepeatWrapping; tx.colorSpace = THREE.SRGBColorSpace; tx.anisotropy = 4;
-  return new THREE.MeshStandardMaterial({ map: tx, roughness: kind === 'tiles' ? 0.35 : 0.9, clippingPlanes: [cut], clipShadows: true, side: THREE.DoubleSide });
+  return new THREE.MeshStandardMaterial({ map: tx, roughness: kind === 'tiles' ? 0.7 : 0.95, clippingPlanes: [cut], clipShadows: true, side: THREE.DoubleSide });
 }
 // tile = metres covered by one canvas repeat
 const ROOM = {
@@ -233,8 +234,8 @@ const ROOM = {
   3:  ['paint',   '#d6e4f0', '#bccfe0', 1.2],   // Camera 10,23 - light blue
   4:  ['paint',   '#ebe0f0', '#d4c2df', 0.6],   // Camera 10,23 - lavender dotted wallpaper
   5:  ['paint',   '#f3efe2', '#d9d2bd', 0.6],   // Bucatarie - cream tiles
-  6:  ['paint',   '#e6f1f6', '#b9d3df', 0.4],   // Baie - white/blue tiles
-  7:  ['paint',   '#d9efe9', '#a9d3c7', 0.4],   // Baie - aqua tiles
+  6:  ['paint',   '#d3e0e6', '#b9d3df', 0.4],   // Baie - white/blue tiles
+  7:  ['paint',   '#c9e0da', '#a9d3c7', 0.4],   // Baie - aqua tiles
   8:  ['paint',   '#e4e4e4', '#cfcfcf', 1.2],   // Camara
   9:  ['paint',   '#e4e4e4', '#cfcfcf', 1.2],   // Debara
   10: ['paint',   '#e4e4e4', '#cfcfcf', 1.2],   // Debara
@@ -244,7 +245,8 @@ const ROOM = {
   14: ['paint',   '#e8e4dc', '#d2ccc0', 1.2],   // Balcon
 };
 const roomMat = {};
-for (const [k, [kind, base, accent]] of Object.entries(ROOM)) roomMat[k] = finish(kind, base, accent);
+for (const [k, [kind, base, accent]] of Object.entries(ROOM)) { roomMat[k] = finish(kind, base, accent);
+  if (k !== '0') { roomMat[k].roughness = 1; roomMat[k].envMapIntensity = 0.25; } }   // matt wall paint: no sheen, no glare near the lamps
 
 // walls: three height bands, each one continuous; every face finished like the room it faces
 for (const { o, h } of DATA.caps) {
@@ -380,7 +382,7 @@ for (const [x, y] of DATA.lamps) {
 }
 
 // bathroom wall sconces: chrome back plate + frosted glowing glass cylinder lying along the wall
-const frostMat = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xfff0d6, emissiveIntensity: 1.2, roughness: 0.6, clippingPlanes: [cut] });
+const frostMat = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xfff0d6, emissiveIntensity: 0.8, roughness: 0.6, clippingPlanes: [cut] });
 for (const [x, y, nx, ny] of DATA.sconces) {
   const g = new THREE.Group();
   const back = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.07, 0.015), metalMat); back.position.z = 0.008; g.add(back);
@@ -389,8 +391,8 @@ for (const [x, y, nx, ny] of DATA.sconces) {
   glass.rotation.z = Math.PI / 2; glass.position.z = 0.075; g.add(glass);
   g.position.copy(W(x, y, 1.95));
   g.rotation.y = Math.atan2(nx, -ny);
-  const light = new THREE.PointLight(0xfff0d6, LIGHT.lamp * 0.28, 3, 2);   // no shadow: short range keeps it in the bathroom
-  light.position.copy(W(x + nx * 0.25, y + ny * 0.25, 1.9));
+  const light = new THREE.PointLight(0xfff0d6, LIGHT.lamp * 0.06, 3.2, 2);   // no shadow: short range keeps it in the bathroom
+  light.position.copy(W(x + nx * 0.55, y + ny * 0.55, 1.75));   // well off the wall: an even wash instead of a white hot spot
   group.add(g, light);
 }
 
@@ -551,8 +553,8 @@ const skyDay = new THREE.Color(0xcfe0ee), skyNight = new THREE.Color(0x1b2536);
 function setDay(day) {
   for (const l of roomLamps) l.visible = !day;
   pendantBulbMat.emissiveIntensity = day ? 0.05 : 1.4;
-  hemi.intensity = day ? 0.75 : LIGHT.hemi;
-  scene.environmentIntensity = day ? 0.4 : LIGHT.env;
+  hemi.intensity = day ? 0.6 : LIGHT.hemi;
+  scene.environmentIntensity = day ? 0.3 : LIGHT.env;
   sun.intensity = day ? 2.4 : 0.25; sun.color.set(day ? 0xfff1dc : 0x9fb4e0);
   scene.background.copy(day ? skyDay : skyNight);
   ground.material.color.copy(scene.background).multiplyScalar(0.93);
@@ -592,7 +594,7 @@ renderer.setAnimationLoop(() => {
     }
   } else orbit.update();
   if (window.__halo?.visible) { const k = 0.6 + 0.4 * Math.sin(performance.now() / 180); for (const m of window.__halo.children) if (m.isMesh) m.material.opacity = (m.geometry.type === 'RingGeometry' ? 0.4 : 0.22) * k; }
-  assignLampShadows();
+  assignLampShadows(); updateMirrors();
   // contact shading (AO) doubles the frame time: draw it only once the camera has been still for a moment
   if (camera.matrixWorld.equals(aoCam)) stillFor += dt; else { stillFor = 0; aoCam.copy(camera.matrixWorld); }
   quality.ao = quality.aoAllowed && stillFor > 0.25;
@@ -672,6 +674,41 @@ renderer.setAnimationLoop(() => {
     else hide();
   }, true);
 }
+// real mirrors: any flat, fully metallic, glossy pane that a furniture block adds (wardrobe door, hall and bathroom mirrors)
+// is swapped for a planar Reflector, i.e. the room re-rendered from behind the glass. It costs one extra scene render
+// per mirror in view, so a mirror only reflects while the camera is within 7 m of it; further away it keeps the plain pane.
+const mirrors = [];
+function findMirrors() {
+  scene.traverse(o => {
+    if (!o.isMesh || o.userData.mirrorChecked || !o.geometry) return;
+    const m = [].concat(o.material)[0]; if (!m || !(m.metalness >= 0.9 && m.roughness <= 0.12)) return;
+    o.userData.mirrorChecked = true;
+    o.geometry.computeBoundingBox(); const bb = o.geometry.boundingBox, s = bb.getSize(new THREE.Vector3()), c = bb.getCenter(new THREE.Vector3());
+    const ws = o.getWorldScale(new THREE.Vector3()); const d = [s.x * ws.x, s.y * ws.y, s.z * ws.z];
+    const thin = d.indexOf(Math.min(...d)), [u, v] = [0, 1, 2].filter(i => i !== thin);
+    if (d[thin] > 0.03 || d[u] * d[v] < 0.08 || Math.min(d[u], d[v]) < 0.12) return;      // not a flat pane of a useful size
+    // local frame of the pane: +Z of the reflector = the thin axis, pointing into the room (the side that isn't wall)
+    const axis = i => new THREE.Vector3(i === 0 ? 1 : 0, i === 1 ? 1 : 0, i === 2 ? 1 : 0);
+    const q = o.getWorldQuaternion(new THREE.Quaternion()), nW = axis(thin).applyQuaternion(q).normalize(), cW = o.localToWorld(c.clone());
+    const wallAt = k => { const p = cW.clone().addScaledVector(nW, k); return blocked(p.x + cx, -p.z + cy); };
+    let sign = 1; for (const k of [0.12, 0.25, 0.4]) { const f = wallAt(k), b = wallAt(-k); if (f !== b) { sign = f ? -1 : 1; break; } }
+    const up = Math.abs(nW.y) > 0.9 ? new THREE.Vector3(0, 0, 1) : new THREE.Vector3(0, 1, 0);
+    const upLocalIdx = [u, v].sort((a, b) => Math.abs(axis(b).applyQuaternion(q).dot(up)) - Math.abs(axis(a).applyQuaternion(q).dot(up)))[0];
+    const wIdx = upLocalIdx === u ? v : u;
+    const refl = new Reflector(new THREE.PlaneGeometry(d[wIdx], d[upLocalIdx]), { textureWidth: 1024, textureHeight: 1024, color: 0xc8cdd0, clipBias: 0.003 });
+    const zW = nW.clone().multiplyScalar(sign), yW = axis(upLocalIdx).applyQuaternion(q).normalize(); if (yW.dot(up) < 0) yW.negate();
+    const xW = new THREE.Vector3().crossVectors(yW, zW).normalize();
+    refl.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(xW, yW, zW));
+    refl.position.copy(cW).addScaledVector(zW, d[thin] / 2 + 0.002);
+    refl.userData.castShadow = false; refl.userData.receiveShadow = false; refl.userData.mirrorChecked = true; refl.name = 'mirror';
+    scene.add(refl); mirrors.push({ refl, pane: o });
+  });
+}
+function updateMirrors() {
+  for (const m of mirrors) { const near = camera.position.distanceTo(m.refl.position) < 7; m.refl.visible = near && m.pane.visible; }
+}
+setInterval(findMirrors, 1500);
+window.__mirrors = mirrors;
 window.__app = { THREE, camera, orbit, blocked, W, DATA, scene, group, cx, cy, renderer, composer, ao, LIGHT, shadowLights, markShadowsDirty, roomLamps, assignLampShadows, shadowSlots };   // hook for headless checks
 window.__ready = true;
 </script>
