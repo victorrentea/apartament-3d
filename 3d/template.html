@@ -10,6 +10,14 @@
   html, body { margin: 0; height: 100%; background: var(--bg); color: var(--fg); font: 14px/1.4 system-ui, sans-serif; overflow: hidden; }
   #c { display: block; width: 100vw; height: 100vh; }
   #prodwrap { position: fixed; top: 12px; right: 12px; display: flex; gap: 8px; align-items: flex-start; z-index: 5; font: 13px/1.35 system-ui, sans-serif; }
+  #gal { position: fixed; left: 12px; top: 190px; bottom: 44px; width: 172px; overflow-y: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 8px; z-index: 4; font: 12px/1.3 system-ui, sans-serif; }
+  #gal h4 { margin: 8px 2px 4px; font-size: 11px; opacity: .7; text-transform: uppercase; letter-spacing: .04em; }
+  #gal h4:first-child { margin-top: 0; }
+  #gal img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; display: block; border-radius: 6px; margin-bottom: 6px; cursor: zoom-in; }
+  #gal img:hover { outline: 2px solid #ffb020; }
+  #lightbox { position: fixed; inset: 0; z-index: 20; background: rgba(0,0,0,.82); display: none; align-items: center; justify-content: center; cursor: zoom-out; }
+  #lightbox img { max-width: 94vw; max-height: 90vh; border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,.6); }
+  #lightbox button { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); font: 14px system-ui, sans-serif; padding: 8px 16px; border-radius: 8px; border: 0; cursor: pointer; }
   #daynight { font: inherit; background: var(--panel); color: inherit; border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; white-space: nowrap; cursor: pointer; }
   #pinfo { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; white-space: nowrap; cursor: pointer; user-select: none; }
   #ptip { position: fixed; display: none; pointer-events: none; z-index: 9; background: rgba(20,22,26,.92); color: #fff; padding: 7px 10px; border-radius: 8px; font: 13px/1.4 system-ui, sans-serif; white-space: nowrap; }
@@ -35,6 +43,8 @@
 <div id="cam" style="position:fixed;right:10px;bottom:8px;font:12px/1.3 ui-monospace,monospace;background:rgba(0,0,0,.55);color:#fff;padding:4px 8px;border-radius:6px;user-select:all"></div>
 <!--__PRODUCTS__-->
 <div id="ptip"></div>
+<!--__GALLERY__-->
+<div id="lightbox"><img alt=""><button>Du-mă acolo în 3D</button></div>
 <div id="ui">
   <b>Apartament 3D</b>
   <label>Tăietură pereți <input id="cut" type="range" min="0.3" max="2.7" step="0.05" value="2.7"> <span id="cutv">2.70 m</span></label>
@@ -709,6 +719,19 @@ function updateMirrors() {
 }
 setInterval(findMirrors, 1500);
 window.__mirrors = mirrors;
+// photo gallery (left): click a thumbnail to open the photo, click the photo to close it; the button jumps to that viewpoint in 3D
+{
+  const lb = document.getElementById('lightbox'), big = lb.querySelector('img'), go = lb.querySelector('button');
+  let cam = null;
+  for (const im of document.querySelectorAll('#gal img')) im.onclick = () => { big.src = im.dataset.full; cam = im.dataset.cam; lb.style.display = 'flex'; };
+  lb.onclick = () => { lb.style.display = 'none'; };
+  addEventListener('keydown', e => { if (e.key === 'Escape') lb.style.display = 'none'; });
+  go.onclick = e => {
+    e.stopPropagation(); lb.style.display = 'none';
+    const v = cam.split(/[;,]/).map(Number);
+    camera.position.copy(W(v[0], v[1], v[2])); orbit.target.copy(W(v[3], v[4], v[5])); orbit.update();
+  };
+}
 window.__app = { THREE, camera, orbit, blocked, W, DATA, scene, group, cx, cy, renderer, composer, ao, LIGHT, shadowLights, markShadowsDirty, roomLamps, assignLampShadows, shadowSlots };   // hook for headless checks
 window.__ready = true;
 </script>

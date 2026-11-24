@@ -317,6 +317,23 @@ for k in range(1, 15):
     if reg.any():
         dd = nd.distance_transform_edt(reg); i, j = np.unravel_index(np.argmax(dd), dd.shape)
         room_pts[k] = [round(v, 3) for v in to_plan(i, j)]
+# gallery viewpoints: the corners of every room worth a photo, 35 cm off the walls, looking at the room's centre
+views = []
+for k in (1, 2, 3, 4, 5, 6, 7, 11, 13, 14):
+    reg = room_map == k
+    if not reg.any(): continue
+    dd = nd.distance_transform_edt(reg)
+    for off in (0.35, 0.22):
+        ii, jj = np.nonzero(dd >= off / RES)
+        if len(ii): break
+    if not len(ii): continue
+    ci, cj = np.argwhere(reg).mean(0)
+    seen = []
+    for si, sj in ((1, 1), (1, -1), (-1, 1), (-1, -1)):
+        n = np.argmax(si * ii + sj * jj); p = to_plan(ii[n], jj[n])
+        if any(math.hypot(p[0] - q[0], p[1] - q[1]) < 0.8 for q in seen): continue      # narrow room: two corners coincide
+        seen.append(p); t = to_plan(ci, cj)
+        views.append([k, round(p[0], 3), round(p[1], 3), round(t[0], 3), round(t[1], 3)])
 for k in range(1, 13):
     if k in SCONCE_ROOMS: continue
     reg = room_map == k
@@ -403,7 +420,7 @@ data = {
     'H': {'wall': WALL_H, 'door': DOOR_H, 'sill': SILL_H, 'win': WIN_H, 'rail': RAIL_H},
     'walls': [[[round(x, 4), round(y, 4)] for x, y in l] for l in walls],
     'faces': wall_faces, 'gapFaces': gap_faces, 'bandFaces': band_faces, 'caps': caps,
-    'roomPts': room_pts, 'doors': door_leaves, 'lamps': lamps, 'sconces': sconces, 'switches': switches, 'sockets': sockets, 'ceiling': ceil_png,
+    'roomPts': room_pts, 'views': views, 'doors': door_leaves, 'lamps': lamps, 'sconces': sconces, 'switches': switches, 'sockets': sockets, 'ceiling': ceil_png,
     'gaps': gaps,
     'rails': [[[round(x, 4), round(y, 4)] for x, y in p] for p in rails if len(p) >= 2],
     'start': start,
@@ -437,6 +454,17 @@ for jf in sorted(fdir.glob('furniture.json')) + sorted(fdir.glob('*/furniture.js
     for url, (name, n, ids, price) in seen.items():
         total += n
         plist += f'<a href="{_html.escape(url)}" data-g="{'furniture' if key == '.' else 'furniture-' + key}" data-ids="{_html.escape(','.join(ids))}" target="_blank" rel="noopener">{_html.escape(name)}{f" <small>×{n}</small>" if n > 1 else ""}{f" <small>· {price:g} lei</small>" if price else ""}</a>'
+# photo gallery: pictures taken from the room corners by 3d/gallery.mjs (re-run it after the furniture changes)
+gal = Path(__file__).with_name('gallery') / 'index.json'
+ghtml = ''
+if gal.exists():
+    GNAMES = {1: 'Living', 2: 'Dormitor 2', 3: 'Dormitor 3', 4: 'Dormitor 4', 5: 'Bucătărie', 6: 'Baie mare', 7: 'Baie mică', 11: 'Hol', 13: 'Balcon mic', 14: 'Balcon lung'}
+    last = None
+    for e in _json.loads(gal.read_text()):
+        if e['room'] != last: ghtml += f'<h4>{GNAMES.get(e["room"], e["room"])}</h4>'; last = e['room']
+        ghtml += f'<img loading="lazy" src="gallery/t_{e["file"]}" data-full="gallery/{e["file"]}" data-cam="{e["cam"]}" alt="{GNAMES.get(e["room"], "")}">'
+    ghtml = f'<div id="gal">{ghtml}</div>'
+html = html.replace('<!--__GALLERY__-->', ghtml)
 html = html.replace('/*__PMETA__*/', 'const PMETA = ' + _json.dumps(pmeta, ensure_ascii=False) + ';')
 html = html.replace('<!--__PRODUCTS__-->', f'<div id="prodwrap"><button id="daynight" title="Zi: lumina vine de afară, lustrele sunt stinse. Noapte: lustrele aprinse.">☀️ Zi</button><details id="prod"><summary>Produse ({total})</summary>{plist}</details></div>' if total else '')
 print('furniture blocks:', [str(b.relative_to(fdir)) for b in blocks])
