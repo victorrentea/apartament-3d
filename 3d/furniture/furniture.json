@@ -98,60 +98,32 @@
     },
     {
       "id": "wardrobe",
-      "product": "BRIMNES Dulap cu 3 uși, alb, 117x50x190 cm (aspect modificat: oglinda e pe ușa din dreapta, nu pe cea din mijloc ca în original)",
-      "item_no": "404.079.22",
-      "url": "https://www.ikea.com/ro/ro/p/brimnes-dulap-cu-3-usi-alb-40407922/",
-      "price_lei": 699,
-      "model": "40407922-mini.glb",
+      "product": "PAX / FORSAND Combinație dulap, alb/alb, 150x60x236 cm (aspect modificat: oglindă pe ușa din dreapta, ca la vechiul BRIMNES)",
+      "item_no": "s69502768",
+      "url": "https://www.ikea.com/ro/ro/p/pax-forsand-combinatie-dulap-alb-alb-s69502768/",
+      "price_lei": 1665,
+      "model": "69502768-mini.glb",
       "room": 2,
-      "x": 6.339,
-      "y": 13.339,
+      "x": 6.474,
+      "y": 13.367,
       "rot_deg": 180,
-      "placement": "against the south wall, between the south-west wall nib and the door swing; doors face the bed",
+      "placement": "against the south wall (face y 13.064), from the south-west wall nib (x 5.723) to x 7.22, 4 mm off both; front at y 13.67, 0.86 m before the foot of the bed; the hall door swing starts at x 7.76. Replaces the 117x190 BRIMNES: 3 doors, 2.36 m tall (the tallest PAX frame; 34 cm left under the 2.70 m ceiling).",
       "dims_mm": {
-        "w": 1167,
-        "d": 502,
-        "h": 1900
+        "w": 1500,
+        "d": 600,
+        "h": 2364
       },
       "reskin": {
-        "_note": "Modified look, not the stock product: the stock BRIMNES has its mirror on the middle door. The middle mirror is covered with a plain panel (the model's own texture, UVs of the left door's panel), and a mirror panel of the same size/inset is put on the right door (as seen from the front). Rectangles [x0, y0, x1, y1] in metres in the model's centred frame (x to the viewer's right, y up from the floor), z = panel surface; all measured by raycasting the IKEA model.",
-        "mesh": "1",
-        "z": 0.2304,
-        "plain": [
-          {
-            "rect": [
-              -0.092,
-              0.1703,
-              0.0952,
-              1.7853
-            ],
-            "uv": [
-              [
-                0.4987,
-                0.4043
-              ],
-              [
-                0.4987,
-                0.4475
-              ],
-              [
-                0.8819,
-                0.4043
-              ],
-              [
-                0.8819,
-                0.4475
-              ]
-            ]
-          }
-        ],
+        "_note": "Modified look: FORSAND doors are plain; a mirror panel is put on the right door (as seen from the front), 4 cm inside its edges. Door fronts measured on the decoded model: z 0.2991, right door x 0.251..0.748, doors y 0.069..2.357 (model's centred frame).",
+        "mesh": "79429715_wardrobe_combination:1",
+        "z": 0.2991,
         "mirror": [
           {
             "rect": [
-              0.2977,
-              0.1703,
-              0.485,
-              1.7853
+              0.291,
+              0.2,
+              0.708,
+              2.22
             ]
           }
         ]
@@ -166,10 +138,10 @@
       "model": "20561858-mini.glb",
       "room": 2,
       "x": 6.9,
-      "y": 14.65,
+      "y": 14.7,
       "lift_m": 0.003,
       "rot_deg": 0,
-      "placement": "across the room at the foot of the bed: x 5.40-8.40 (west wall 5.35, east wall by the door 8.53), y 13.65-15.65 (wardrobe front 13.60); the foot end of the bed (from 14.53) stands on it, and it runs under the open door leaf. 3 mm above the floor, the bed keeps its height.",
+      "placement": "across the room at the foot of the bed: x 5.40-8.40 (west wall 5.35, east wall by the door 8.53), y 13.70-15.70 (PAX front 13.67); the foot end of the bed (from 14.53) stands on it, and it runs under the open door leaf. 3 mm above the floor, the bed keeps its height.",
       "dims_mm": {
         "w": 3000,
         "d": 2000,
